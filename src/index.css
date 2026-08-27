@@ -1,0 +1,106 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Karla:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+@theme {
+  /* --- Color tokens: warm Indian wedding palette, used with restraint --- */
+  --color-cream: #fbf6ef;
+  --color-cream-soft: #f5efe4;
+  --color-maroon: #6d1e2f;
+  --color-maroon-deep: #4a1420;
+  --color-gold: #b08d57;
+  --color-gold-soft: #d9c093;
+  --color-peach: #f1d6c0;
+  --color-beige: #eae0cf;
+  --color-charcoal: #2a2420;
+  --color-charcoal-soft: #56504a;
+
+  /* --- Typography --- */
+  --font-display: "Cormorant Garamond", "Georgia", serif;
+  --font-body: "Karla", "Segoe UI", sans-serif;
+  --font-data: "Inter", "Segoe UI", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-charcoal);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Visible keyboard focus everywhere, per accessibility requirements. */
+:focus-visible {
+  outline: 2px solid var(--color-maroon);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background-color: var(--color-peach);
+  color: var(--color-maroon-deep);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Shared form input style used across setup wizard and future forms */
+.input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-beige);
+  background-color: white;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.875rem;
+  color: var(--color-charcoal);
+}
+.input:focus {
+  outline: 2px solid var(--color-maroon);
+  outline-offset: 1px;
+}
+
+/* Hero medallion + text entrance animation — plays once on visit, then settles.
+   Photo pops in first (spring-like ease), text lines fade up in a short stagger. */
+@keyframes medallion-pop {
+  0% { opacity: 0; transform: scale(0.6) translateY(8px); }
+  60% { opacity: 1; transform: scale(1.06) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.anim-medallion {
+  animation: medallion-pop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.anim-fade-1 { animation: fade-up 0.6s ease-out 0.15s both; }
+.anim-fade-2 { animation: fade-up 0.6s ease-out 0.28s both; }
+.anim-fade-3 { animation: fade-up 0.6s ease-out 0.4s both; }
+.anim-fade-4 { animation: fade-up 0.6s ease-out 0.52s both; }
+
+/* Thin decorative divider used sparingly (section 37: subtle borders, not clutter) */
+.motif-divider {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-gold) 20%,
+    var(--color-gold) 80%,
+    transparent
+  );
+  opacity: 0.5;
+}
