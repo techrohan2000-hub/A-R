@@ -112,17 +112,36 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
+
     (async () => {
       const saved = await storage.loadWedding();
+      if (cancelled) return;
+
       if (saved) {
         setWorkspace(saved);
       } else {
-        // Brand-new visitor: start blank. Sample data is opt-in from Settings.
+        // Brand-new / empty shared workspace: start blank. Sample data is
+        // opt-in from Settings.
         await storage.saveWedding(emptyWorkspace);
-        setWorkspace(emptyWorkspace);
+        if (!cancelled) setWorkspace(emptyWorkspace);
       }
       setIsLoading(false);
+
+      // If the adapter supports real-time sync (e.g. Firebase), subscribe so
+      // changes made by other users/devices show up here automatically.
+      if (storage.subscribeWedding) {
+        unsubscribe = storage.subscribeWedding((incoming) => {
+          if (incoming) setWorkspace(incoming);
+        });
+      }
     })();
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
 
   const persist = useCallback(async (next: WeddingWorkspace) => {

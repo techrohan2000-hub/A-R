@@ -12,4 +12,5 @@ export interface StorageAdapter {
   exportWedding(): Promise<string>; // returns a JSON string
   importWedding(json: string): Promise<WeddingWorkspace>;
   clearWedding(): Promise<void>;
+  subscribeWedding?: (onChange: (workspace: WeddingWorkspace | null) => void) => () => void;
 }
