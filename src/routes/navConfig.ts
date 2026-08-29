@@ -28,8 +28,7 @@ export interface NavItem {
   path: string;
   label: string;
   icon: LucideIcon;
-  // Phase 1 ships Dashboard + Settings as full pages; everything else is a
-  // friendly "coming in a later phase" placeholder so navigation never breaks.
+  // Phase remains useful for grouping the original delivery roadmap.
   phase: 1 | 2 | 3 | 4 | 5 | 6 | 7;
 }
 

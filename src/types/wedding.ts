@@ -143,6 +143,18 @@ export interface TimelineMilestone {
   completed: boolean;
 }
 
+export interface PlannerItem {
+  id: string;
+  section: string;
+  title: string;
+  category: string;
+  contact: string;
+  date: string;
+  status: string;
+  amount: number;
+  notes: string;
+}
+
 // Bundle of Phase-1 sample records, kept separate from the core Wedding record
 // so future phases can persist each domain independently.
 export interface WeddingWorkspace {
@@ -153,4 +165,5 @@ export interface WeddingWorkspace {
   vendors: VendorSummary[];
   shopping: ShoppingSummary[];
   milestones: TimelineMilestone[];
+  plannerItems: PlannerItem[];
 }

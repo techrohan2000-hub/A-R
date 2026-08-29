@@ -112,4 +112,12 @@ export const sampleWorkspace: WeddingWorkspace = {
     { id: "m5", title: "Final guest count to caterer", date: daysFromNow(50), completed: false },
     { id: "m6", title: "Collect outfits & jewellery", date: daysFromNow(68), completed: false },
   ],
+  plannerItems: [
+    { id: "pi1", section: "invitations", title: "Printed wedding invitation", category: "Traditional card", contact: "Shree Printers", date: daysFromNow(10), status: "In progress", amount: 18000, notes: "Marathi and English inserts" },
+    { id: "pi2", section: "outfits", title: "Wedding saree", category: "Bride", contact: "Aishwarya", date: daysFromNow(35), status: "Ordered", amount: 42000, notes: "Blouse fitting pending" },
+    { id: "pi3", section: "jewellery", title: "Mangal sutra", category: "Bride", contact: "Family", date: daysFromNow(30), status: "Ready", amount: 85000, notes: "" },
+    { id: "pi4", section: "food", title: "Wedding lunch menu", category: "Main ceremony", contact: "Annapurna Caterers", date: daysFromNow(28), status: "Tasting", amount: 240000, notes: "Keep the full menu vegetarian" },
+    { id: "pi5", section: "travel", title: "Guest hotel block", category: "Accommodation", contact: "Hotel Shreyas", date: daysFromNow(20), status: "Reserved", amount: 65000, notes: "20 rooms held" },
+    { id: "pi6", section: "wedding-day", title: "Varmala ready backstage", category: "Ceremony", contact: "Riya", date: daysFromNow(72), status: "Planned", amount: 0, notes: "Confirm 30 minutes before muhurat" },
+  ],
 };

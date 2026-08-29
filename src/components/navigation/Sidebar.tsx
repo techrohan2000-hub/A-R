@@ -1,5 +1,6 @@
+import { Fragment } from "react";
 import { NavLink } from "react-router-dom";
-import { Heart } from "lucide-react";
+import { Heart, Sparkles } from "lucide-react";
 import { navItems } from "../../routes/navConfig";
 import { useWedding } from "../../hooks/useWedding";
 
@@ -8,10 +9,12 @@ export function Sidebar() {
   const couple = workspace?.wedding.couple;
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-beige bg-cream-soft/60 lg:flex">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-hidden border-r border-beige bg-cream-soft/90 shadow-[12px_0_40px_-36px_rgba(74,20,32,0.6)] backdrop-blur-xl lg:flex">
+      <div className="pointer-events-none absolute -left-20 -top-20 h-52 w-52 rounded-full border border-gold-soft/30" />
       <div className="flex items-center gap-2.5 px-6 py-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-maroon text-cream">
+        <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-maroon text-cream shadow-lg shadow-maroon/20">
           <Heart size={16} fill="currentColor" strokeWidth={0} />
+          <Sparkles size={10} className="absolute -right-1 -top-1 text-gold" />
         </div>
         <div className="min-w-0">
           <p className="truncate font-display text-lg leading-tight text-maroon-deep">
@@ -25,24 +28,40 @@ export function Sidebar() {
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">
         <ul className="space-y-0.5">
-          {navItems.map(({ path, label, icon: Icon }) => (
-            <li key={path}>
-              <NavLink
-                to={path}
-                end={path === "/"}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-                    isActive
-                      ? "bg-maroon text-cream shadow-sm"
-                      : "text-charcoal-soft hover:bg-peach/40 hover:text-maroon-deep"
-                  }`
-                }
-              >
-                <Icon size={17} strokeWidth={1.75} />
-                <span className="truncate">{label}</span>
-              </NavLink>
-            </li>
-          ))}
+          {navItems.map(({ path, label, icon: Icon }) => {
+            const groupLabel: Record<string, string> = {
+              "/": "Overview",
+              "/guests": "People & invitations",
+              "/shopping": "Details & bookings",
+              "/documents": "Final coordination",
+              "/settings": "Preferences",
+            };
+            return (
+              <Fragment key={path}>
+                {groupLabel[path] && (
+                  <li className="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-gold first:pt-0">
+                    {groupLabel[path]}
+                  </li>
+                )}
+                <li>
+                  <NavLink
+                    to={path}
+                    end={path === "/"}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${
+                        isActive
+                          ? "bg-maroon text-cream shadow-md shadow-maroon/15"
+                          : "text-charcoal-soft hover:bg-peach/45 hover:text-maroon-deep"
+                      }`
+                    }
+                  >
+                    <Icon size={17} strokeWidth={1.75} />
+                    <span className="truncate">{label}</span>
+                  </NavLink>
+                </li>
+              </Fragment>
+            );
+          })}
         </ul>
       </nav>
     </aside>

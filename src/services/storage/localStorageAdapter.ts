@@ -67,6 +67,7 @@ export function normalizeWorkspace(workspace: WeddingWorkspace): WeddingWorkspac
     vendors: Array.isArray(workspace.vendors) ? workspace.vendors : [],
     shopping: Array.isArray(workspace.shopping) ? workspace.shopping : [],
     milestones: Array.isArray(workspace.milestones) ? workspace.milestones : [],
+    plannerItems: Array.isArray(workspace.plannerItems) ? workspace.plannerItems : [],
   };
 }
 

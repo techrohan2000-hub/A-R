@@ -4,7 +4,7 @@ import { AppLayout } from "./layouts/AppLayout";
 import { Dashboard } from "./pages/Dashboard";
 import { Settings } from "./pages/Settings";
 import { WeddingSetup } from "./pages/WeddingSetup";
-import { PlaceholderPage } from "./pages/PlaceholderPage";
+import { PlannerModule } from "./pages/PlannerModule";
 import { Tasks } from "./pages/Tasks";
 import { Guests } from "./pages/Guests";
 import { Vendors } from "./pages/Vendors";
@@ -62,7 +62,7 @@ function AppRoutes() {
           {navItems
             .filter((item) => !builtPaths.has(item.path))
             .map((item) => (
-              <Route key={item.path} path={item.path} element={<PlaceholderPage />} />
+              <Route key={item.path} path={item.path} element={<PlannerModule />} />
             ))}
         </Route>
       </Routes>

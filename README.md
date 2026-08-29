@@ -7,13 +7,16 @@ A personal family wedding command center for a Hindu Brahmin wedding, built as a
 - ✅ Dashboard with live countdown, stat cards (tasks, budget, guests, vendors, shopping), and derived insights
 - ✅ Wedding Setup wizard (couple details, tradition/customs, budget & guest planning)
 - ✅ Sidebar (desktop) + bottom navigation with "More" sheet and floating Quick Add (mobile)
-- ✅ All 22 planned modules are routed — unbuilt ones show a clear "coming in Phase N" state instead of a dead link
+- ✅ All 22 planner sections are routed, with CRUD workflows across every data module
 - ✅ Settings page: JSON backup export/import, start fresh, reload sample data, delete-all (with confirmation)
 - ✅ Local-first persistence with optional Firebase real-time synchronization
 - ✅ Realistic sample data (Rohan & Aishwarya, Maharashtrian tradition) so the app never looks empty
 - ✅ GitHub Pages–ready build config + GitHub Actions auto-deploy workflow
 
-Everything else (Timeline, Events & Rituals, Tasks, Guests, Shopping, Vendors, Budget, etc.) is scaffolded in navigation and routing, and will be filled in phase by phase.
+The remaining planner areas—Invitations, Outfits, Jewellery, Food, Venue,
+Decoration, Photography, Travel & Stay, Gifts, Documents, Wedding Day, Family
+and Notes—share a flexible CRUD workspace with search, status filtering and
+Firebase synchronization.
 
 ## Tech stack
 

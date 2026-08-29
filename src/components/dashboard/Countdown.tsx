@@ -132,7 +132,7 @@ export function Countdown({ featured, groomName, brideName, photoUrl }: Countdow
             {featured.city ? `, ${featured.city}` : ""}
           </p>
 
-          <div className="anim-fade-4 mt-7 grid grid-cols-4 gap-3 sm:max-w-md">
+          <div className="anim-fade-4 mt-7 grid grid-cols-2 gap-3 min-[420px]:grid-cols-4 sm:max-w-md">
             {units.map((u) => (
               <div
                 key={u.key}

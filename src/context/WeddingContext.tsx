@@ -2,6 +2,7 @@ import { createContext, useCallback, useEffect, useRef, useState, type ReactNode
 import type {
   BudgetSummary,
   GuestSummary,
+  PlannerItem,
   ShoppingSummary,
   TaskSummary,
   TimelineMilestone,
@@ -59,6 +60,11 @@ interface WeddingContextValue {
   addMilestone: (milestone: Omit<TimelineMilestone, "id">) => Promise<void>;
   updateMilestone: (id: string, milestone: Omit<TimelineMilestone, "id">) => Promise<void>;
   deleteMilestone: (id: string) => Promise<void>;
+
+  // Remaining planner modules
+  addPlannerItem: (item: Omit<PlannerItem, "id">) => Promise<void>;
+  updatePlannerItem: (id: string, item: Omit<PlannerItem, "id">) => Promise<void>;
+  deletePlannerItem: (id: string) => Promise<void>;
 }
 
 export const WeddingContext = createContext<WeddingContextValue | undefined>(undefined);
@@ -101,6 +107,7 @@ const emptyWorkspace: WeddingWorkspace = {
   vendors: [],
   shopping: [],
   milestones: [],
+  plannerItems: [],
 };
 
 function makeId(prefix: string) {
@@ -387,6 +394,36 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     [withWorkspace]
   );
 
+  // ---- Invitations, outfits, jewellery, food, venue, decoration,
+  // photography, travel, gifts, documents, wedding day, family and notes ----
+  const addPlannerItem = useCallback(
+    async (item: Omit<PlannerItem, "id">) => {
+      await withWorkspace((ws) => ({
+        ...ws,
+        plannerItems: [...ws.plannerItems, { ...item, id: makeId(item.section) }],
+      }));
+    },
+    [withWorkspace]
+  );
+  const updatePlannerItem = useCallback(
+    async (id: string, item: Omit<PlannerItem, "id">) => {
+      await withWorkspace((ws) => ({
+        ...ws,
+        plannerItems: ws.plannerItems.map((entry) => (entry.id === id ? { ...item, id } : entry)),
+      }));
+    },
+    [withWorkspace]
+  );
+  const deletePlannerItem = useCallback(
+    async (id: string) => {
+      await withWorkspace((ws) => ({
+        ...ws,
+        plannerItems: ws.plannerItems.filter((entry) => entry.id !== id),
+      }));
+    },
+    [withWorkspace]
+  );
+
   const value: WeddingContextValue = {
     workspace,
     isLoading,
@@ -419,6 +456,9 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     addMilestone,
     updateMilestone,
     deleteMilestone,
+    addPlannerItem,
+    updatePlannerItem,
+    deletePlannerItem,
   };
 
   return <WeddingContext.Provider value={value}>{children}</WeddingContext.Provider>;
