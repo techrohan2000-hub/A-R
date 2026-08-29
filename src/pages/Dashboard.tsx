@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Navigate, Link } from "react-router-dom";
 import {
   ListChecks,
   CheckCircle2,
@@ -8,9 +9,10 @@ import {
   Users,
   Store,
   ShoppingBag,
+  GanttChartSquare,
 } from "lucide-react";
 import { useWedding } from "../hooks/useWedding";
-import { Countdown } from "../components/dashboard/Countdown";
+import { Countdown, type FeaturedEvent } from "../components/dashboard/Countdown";
 import { StatCard } from "../components/dashboard/StatCard";
 import { QuickActions } from "../components/dashboard/QuickActions";
 import { InsightsList } from "../components/dashboard/InsightsList";
@@ -102,7 +104,27 @@ export function Dashboard() {
 
   if (!workspace || !stats) return null;
 
+  if (!workspace.wedding.onboardingComplete) {
+    return <Navigate to="/setup" replace />;
+  }
+
   const { couple } = workspace.wedding;
+
+  // Countdown priority: a fixed wedding date wins; otherwise the nearest
+  // enabled upcoming event (e.g. the engagement) becomes the featured date.
+  const featured: FeaturedEvent | null = couple.weddingDate
+    ? { label: "Wedding", date: couple.weddingDate, time: couple.weddingTime, venue: couple.weddingVenue, city: couple.city }
+    : (() => {
+        const next = [...workspace.wedding.events]
+          .filter((e) => e.enabled && daysUntil(e.date) >= 0)
+          .sort((a, b) => daysUntil(a.date) - daysUntil(b.date))[0];
+        return next ? { label: next.name, date: next.date } : null;
+      })();
+
+  const upcomingMilestones = [...workspace.milestones]
+    .filter((m) => !m.completed && daysUntil(m.date) >= 0)
+    .sort((a, b) => daysUntil(a.date) - daysUntil(b.date))
+    .slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -114,16 +136,38 @@ export function Dashboard() {
       )}
 
       <Countdown
-        weddingDate={couple.weddingDate}
-        weddingTime={couple.weddingTime}
+        featured={featured}
         groomName={couple.groomName}
         brideName={couple.brideName}
-        venue={couple.weddingVenue}
-        city={couple.city}
         photoUrl={couple.couplePhotoUrl}
       />
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      {upcomingMilestones.length > 0 && (
+        <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+          {upcomingMilestones.map((m) => {
+            const days = daysUntil(m.date);
+            return (
+              <Link
+                key={m.id}
+                to="/timeline"
+                className="flex shrink-0 items-center gap-3 rounded-2xl border border-beige bg-white/70 px-4 py-3 transition hover:border-gold-soft hover:bg-peach/30"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-peach/60 text-maroon">
+                  <GanttChartSquare size={16} />
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-charcoal">{m.title}</p>
+                  <p className="text-xs text-charcoal-soft">
+                    {days === 0 ? "Today" : `${days} day${days === 1 ? "" : "s"} away`}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="stagger-fade grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         <StatCard icon={ListChecks} label="Total Tasks" value={String(stats.totalTasks)} />
         <StatCard icon={CheckCircle2} label="Completed" value={String(stats.completedTasks)} tone="success" />
         <StatCard icon={Clock} label="Pending Tasks" value={String(stats.pendingTasks)} />

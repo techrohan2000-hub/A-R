@@ -26,6 +26,9 @@ html {
 
 body {
   background-color: var(--color-cream);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(109, 30, 47, 0.05) 1px, transparent 0);
+  background-size: 22px 22px;
   color: var(--color-charcoal);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
@@ -91,6 +94,21 @@ h1, h2, h3, h4 {
 .anim-fade-2 { animation: fade-up 0.6s ease-out 0.28s both; }
 .anim-fade-3 { animation: fade-up 0.6s ease-out 0.4s both; }
 .anim-fade-4 { animation: fade-up 0.6s ease-out 0.52s both; }
+
+/* Staggered entrance for grids of cards (stat cards, lists). Each direct
+   child fades up in sequence, capped so long lists don't take forever. */
+.stagger-fade > * {
+  animation: fade-up 0.45s ease-out both;
+}
+.stagger-fade > *:nth-child(1) { animation-delay: 0.02s; }
+.stagger-fade > *:nth-child(2) { animation-delay: 0.06s; }
+.stagger-fade > *:nth-child(3) { animation-delay: 0.1s; }
+.stagger-fade > *:nth-child(4) { animation-delay: 0.14s; }
+.stagger-fade > *:nth-child(5) { animation-delay: 0.18s; }
+.stagger-fade > *:nth-child(6) { animation-delay: 0.22s; }
+.stagger-fade > *:nth-child(7) { animation-delay: 0.26s; }
+.stagger-fade > *:nth-child(8) { animation-delay: 0.3s; }
+.stagger-fade > *:nth-child(n+9) { animation-delay: 0.34s; }
 
 /* Thin decorative divider used sparingly (section 37: subtle borders, not clutter) */
 .motif-divider {

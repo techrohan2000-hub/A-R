@@ -55,7 +55,7 @@ export function WeddingSetup() {
     }
   );
 
-  const canProceedFromStep1 = couple.groomName.trim() && couple.brideName.trim() && couple.weddingDate;
+  const canProceedFromStep1 = couple.groomName.trim() && couple.brideName.trim();
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -166,7 +166,7 @@ export function WeddingSetup() {
                   onChange={(e) => setCouple({ ...couple, brideName: e.target.value })}
                 />
               </Field>
-              <Field label="Wedding Date">
+              <Field label="Wedding Date (optional — leave blank if not fixed yet)">
                 <input
                   type="date"
                   className="input"
@@ -205,6 +205,14 @@ export function WeddingSetup() {
                 />
               </Field>
             </div>
+
+            {!couple.weddingDate && (
+              <p className="rounded-xl bg-peach/30 px-3.5 py-2.5 text-xs text-maroon-deep">
+                No wedding date yet? That's fine — add your confirmed functions (like the engagement) in{" "}
+                <strong>Events &amp; Rituals</strong> once you're set up, and your dashboard will count down to
+                whichever one is soonest.
+              </p>
+            )}
           </div>
         )}
 

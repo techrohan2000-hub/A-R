@@ -1,4 +1,4 @@
-import { ListPlus, UserPlus, Wallet, ShoppingBag, Store, CalendarPlus, Flame, StickyNote } from "lucide-react";
+import { ListPlus, UserPlus, Wallet, ShoppingBag, Store, CalendarPlus, Flame, StickyNote, GanttChartSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "../common/Card";
 
@@ -9,6 +9,7 @@ const actions = [
   { label: "Add Shopping", icon: ShoppingBag, path: "/shopping" },
   { label: "Add Vendor", icon: Store, path: "/vendors" },
   { label: "Add Event", icon: CalendarPlus, path: "/events-rituals" },
+  { label: "Add Milestone", icon: GanttChartSquare, path: "/timeline" },
   { label: "Add Ritual", icon: Flame, path: "/events-rituals" },
   { label: "Add Note", icon: StickyNote, path: "/notes" },
 ];

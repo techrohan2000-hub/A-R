@@ -130,7 +130,7 @@ export function Settings() {
             onClick={() => loadSampleData()}
             className="flex items-center gap-2 rounded-full border border-beige px-4 py-2.5 text-sm font-medium text-charcoal-soft transition hover:bg-cream-soft"
           >
-            <RotateCcw size={16} /> Reload Sample Data
+            <RotateCcw size={16} /> Load Sample Data (for reference)
           </button>
           <button
             onClick={() => setConfirmAction("reset")}

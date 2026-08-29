@@ -9,10 +9,22 @@ function isValidWorkspace(value: unknown): value is WeddingWorkspace {
   return Boolean(v.wedding && typeof v.wedding === "object");
 }
 
+function normalizeWorkspace(workspace: WeddingWorkspace): WeddingWorkspace {
+  return {
+    ...workspace,
+    tasks: Array.isArray(workspace.tasks) ? workspace.tasks : [],
+    budget: Array.isArray(workspace.budget) ? workspace.budget : [],
+    guests: Array.isArray(workspace.guests) ? workspace.guests : [],
+    vendors: Array.isArray(workspace.vendors) ? workspace.vendors : [],
+    shopping: Array.isArray(workspace.shopping) ? workspace.shopping : [],
+    milestones: Array.isArray(workspace.milestones) ? workspace.milestones : [],
+  };
+}
+
 export class LocalStorageAdapter implements StorageAdapter {
   async saveWedding(workspace: WeddingWorkspace): Promise<void> {
     const payload: WeddingWorkspace = {
-      ...workspace,
+      ...normalizeWorkspace(workspace),
       wedding: { ...workspace.wedding, updatedAt: new Date().toISOString() },
     };
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -23,7 +35,7 @@ export class LocalStorageAdapter implements StorageAdapter {
     if (!raw) return null;
     try {
       const parsed = JSON.parse(raw);
-      return isValidWorkspace(parsed) ? parsed : null;
+      return isValidWorkspace(parsed) ? normalizeWorkspace(parsed) : null;
     } catch {
       return null;
     }
@@ -46,8 +58,9 @@ export class LocalStorageAdapter implements StorageAdapter {
     if (!isValidWorkspace(parsed)) {
       throw new Error("That file doesn't look like a wedding planner backup.");
     }
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-    return parsed;
+    const normalized = normalizeWorkspace(parsed);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+    return normalized;
   }
 
   async clearWedding(): Promise<void> {

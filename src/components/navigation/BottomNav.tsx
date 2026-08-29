@@ -18,6 +18,7 @@ export function BottomNav() {
     { label: "Shopping Item", path: "/shopping" },
     { label: "Vendor", path: "/vendors" },
     { label: "Event", path: "/events-rituals" },
+    { label: "Milestone", path: "/timeline" },
     { label: "Note", path: "/notes" },
   ];
 

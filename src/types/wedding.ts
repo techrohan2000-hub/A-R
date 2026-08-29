@@ -95,6 +95,7 @@ export interface TaskSummary {
 }
 
 export interface BudgetSummary {
+  id: string;
   category: string;
   estimated: number;
   paid: number;
@@ -134,6 +135,14 @@ export interface ShoppingSummary {
   packed: boolean;
 }
 
+export interface TimelineMilestone {
+  id: string;
+  title: string;
+  date: string; // ISO date
+  notes?: string;
+  completed: boolean;
+}
+
 // Bundle of Phase-1 sample records, kept separate from the core Wedding record
 // so future phases can persist each domain independently.
 export interface WeddingWorkspace {
@@ -143,4 +152,5 @@ export interface WeddingWorkspace {
   guests: GuestSummary[];
   vendors: VendorSummary[];
   shopping: ShoppingSummary[];
+  milestones: TimelineMilestone[];
 }
