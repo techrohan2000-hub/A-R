@@ -1,8 +1,9 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Download, Upload, RotateCcw, Trash2, ShieldAlert, Pencil } from "lucide-react";
+import { Download, Upload, RotateCcw, Trash2, ShieldAlert, Pencil, Cloud, HardDrive } from "lucide-react";
 import { useWedding } from "../hooks/useWedding";
 import { Card } from "../components/common/Card";
+import { isFirebaseConfigured } from "../services/firebase";
 
 export function Settings() {
   const { workspace, exportBackup, importBackup, resetAllData, loadSampleData, startFresh } = useWedding();
@@ -83,10 +84,22 @@ export function Settings() {
       </Card>
 
       <Card>
+        <h2 className="mb-1 flex items-center gap-2 text-lg text-maroon-deep">
+          {isFirebaseConfigured ? <Cloud size={18} /> : <HardDrive size={18} />}
+          Data Sync
+        </h2>
+        <p className="text-sm text-charcoal-soft">
+          {isFirebaseConfigured
+            ? "Firebase sync is configured. Changes are cached in this browser first and synchronized to the shared wedding workspace."
+            : "Firebase is not configured in this build. Changes are safely stored in this browser, but they will not appear on other devices until the Firebase environment values are added and the app is redeployed."}
+        </p>
+      </Card>
+
+      <Card>
         <h2 className="mb-1 text-lg text-maroon-deep">Backup &amp; Restore</h2>
         <p className="mb-4 text-sm text-charcoal-soft">
-          Your entire plan is stored locally in this browser. Export a backup regularly, especially before
-          clearing your browser data.
+          A local copy of your plan is kept in this browser even when cloud sync is active. Export a backup
+          regularly, especially before clearing browser data.
         </p>
         <div className="flex flex-wrap gap-3">
           <button
@@ -111,9 +124,9 @@ export function Settings() {
           <ShieldAlert size={18} /> Data &amp; Privacy
         </h2>
         <p className="text-sm text-charcoal-soft">
-          This app stores your wedding data locally in your browser only — it is not a secure, multi-user cloud
-          database. Don't upload sensitive documents (ID proofs, contracts with signatures, bank details) here;
-          keep those in a private, trusted location instead.
+          The current Firebase workspace is shared and has no user login. Anyone granted access by your Firestore
+          rules can read or change it. Don't store ID proofs, signed contracts, bank details, or other sensitive
+          information here.
         </p>
       </Card>
 

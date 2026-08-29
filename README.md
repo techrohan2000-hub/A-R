@@ -9,7 +9,7 @@ A personal family wedding command center for a Hindu Brahmin wedding, built as a
 - ✅ Sidebar (desktop) + bottom navigation with "More" sheet and floating Quick Add (mobile)
 - ✅ All 22 planned modules are routed — unbuilt ones show a clear "coming in Phase N" state instead of a dead link
 - ✅ Settings page: JSON backup export/import, start fresh, reload sample data, delete-all (with confirmation)
-- ✅ Local persistence via `localStorage`, behind a swappable `StorageAdapter` interface
+- ✅ Local-first persistence with optional Firebase real-time synchronization
 - ✅ Realistic sample data (Rohan & Aishwarya, Maharashtrian tradition) so the app never looks empty
 - ✅ GitHub Pages–ready build config + GitHub Actions auto-deploy workflow
 
@@ -23,10 +23,15 @@ React 19 · TypeScript (strict) · Vite · Tailwind CSS v4 · React Router (Hash
 
 ```bash
 npm install
+cp .env.example .env.local
 npm run dev
 ```
 
 Open the URL Vite prints (usually `http://localhost:5173`).
+
+Firebase is optional for local development. Fill in `.env.local` with the web
+app configuration from Firebase Console to enable cloud sync; without it, the
+app continues to work using its browser cache.
 
 ## Production build
 
@@ -73,18 +78,35 @@ This project is pre-configured for GitHub Pages with no extra setup needed:
 
 Any future push to `main` redeploys automatically.
 
+## Firebase sync
+
+The app synchronizes one shared Firestore document at `weddings/shared`.
+
+1. Create a Firebase web app and a Firestore database.
+2. Copy `.env.example` to `.env.local` and add the Firebase web configuration.
+3. In the GitHub repository, add Actions secrets with the same six
+   `VITE_FIREBASE_*` names. The deployment workflow injects them at build time.
+4. Configure Firestore rules to allow the intended users to read and write
+   `weddings/shared`.
+
+There is no authentication yet. Public read/write rules make the shared planner
+work, but anyone who can reach the project can modify the data. Use restricted
+rules or add authentication before storing private information.
+
 ## Data storage & privacy
 
-This app stores all wedding data **locally in your browser** (`localStorage`) — there is no backend and no cloud database. That means:
+The app writes to `localStorage` first, then syncs to Firebase when configured.
+This means:
 
-- Your data stays on your device and isn't sent anywhere.
-- Clearing your browser data or switching browsers/devices will lose your plan unless you've exported a backup.
+- The planner remains usable if Firebase is unavailable or misconfigured.
+- With Firebase configured, changes are shared across browsers and devices.
+- Without Firebase, clearing browser data loses the local plan unless you exported a backup.
 - **Export a backup regularly** from Settings → Backup & Restore. It downloads a plain JSON file you can re-import anytime, on any device.
 - Don't commit sensitive documents (ID proofs, signed contracts, bank details) into this repository — GitHub repos, even private ones, are not a secure document vault. The Documents module (a later phase) will only store references/notes about where such files live, never the files themselves.
 
 ## Architecture notes for future phases
 
-- **`src/services/storage/`** — all persistence goes through the `StorageAdapter` interface (`saveWedding`, `loadWedding`, `exportWedding`, `importWedding`). Today it's backed by `LocalStorageAdapter`; a future Firebase/Supabase adapter can implement the same interface with zero UI changes.
+- **`src/services/storage/`** — all persistence goes through the `StorageAdapter` interface (`saveWedding`, `loadWedding`, `exportWedding`, `importWedding`). `FirebaseAdapter` maintains a local cache and synchronizes it with Firestore when configured.
 - **`src/context/WeddingContext.tsx`** — single source of truth for the in-memory wedding workspace, wired to the storage layer.
 - **`src/routes/navConfig.ts`** — the single list of all 22 modules (path, label, icon, build phase). Sidebar, bottom nav, and route generation all read from this one file, so adding a module's real page later is a one-line swap in `App.tsx`.
 - **`src/types/wedding.ts`** — core data model. Extend this file as each phase adds a full module (Task, Guest, ShoppingItem, Vendor, etc. currently have lightweight "summary" shapes used for dashboard calculations).

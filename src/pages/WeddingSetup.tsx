@@ -20,10 +20,44 @@ const traditions: { value: Tradition; label: string }[] = [
 
 const steps = ["Couple Details", "Tradition", "Planning Preferences"] as const;
 
+async function compressPhoto(file: File): Promise<string> {
+  if (!file.type.startsWith("image/")) throw new Error("Please choose an image file.");
+
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const image = new Image();
+    image.src = objectUrl;
+    await image.decode();
+
+    let maxDimension = 800;
+    let result = "";
+
+    while (maxDimension >= 320) {
+      const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("This browser could not resize the photo.");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      result = canvas.toDataURL("image/jpeg", 0.78);
+      if (result.length <= 500_000) return result;
+      maxDimension = Math.floor(maxDimension * 0.75);
+    }
+
+    throw new Error("That photo is too large to synchronize. Please choose a smaller image.");
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+}
+
 export function WeddingSetup() {
   const { workspace, completeOnboarding } = useWedding();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
+  const [photoError, setPhotoError] = useState<string | null>(null);
 
   const [couple, setCouple] = useState<Couple>(
     workspace?.wedding.couple ?? {
@@ -57,15 +91,17 @@ export function WeddingSetup() {
 
   const canProceedFromStep1 = couple.groomName.trim() && couple.brideName.trim();
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setCouple((c) => ({ ...c, couplePhotoUrl: reader.result as string }));
-    };
-    reader.readAsDataURL(file);
     e.target.value = "";
+    setPhotoError(null);
+    try {
+      const couplePhotoUrl = await compressPhoto(file);
+      setCouple((current) => ({ ...current, couplePhotoUrl }));
+    } catch (error) {
+      setPhotoError(error instanceof Error ? error.message : "The photo could not be processed.");
+    }
   };
 
   const initials = (name: string) => name.trim().charAt(0).toUpperCase() || "?";
@@ -148,6 +184,7 @@ export function WeddingSetup() {
               <div className="text-sm">
                 <p className="font-medium text-charcoal">Couple Photo</p>
                 <p className="text-charcoal-soft">This appears on your dashboard's countdown. Optional — a monogram is shown until you add one.</p>
+                {photoError && <p className="mt-1 text-[#a13030]">{photoError}</p>}
               </div>
             </div>
 

@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type {
   BudgetSummary,
   GuestSummary,
@@ -110,31 +110,42 @@ function makeId(prefix: string) {
 export function WeddingProvider({ children }: { children: ReactNode }) {
   const [workspace, setWorkspace] = useState<WeddingWorkspace | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const workspaceRef = useRef<WeddingWorkspace | null>(null);
 
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
     let cancelled = false;
 
     (async () => {
-      const saved = await storage.loadWedding();
-      if (cancelled) return;
+      try {
+        const saved = await storage.loadWedding();
+        if (cancelled) return;
 
-      if (saved) {
-        setWorkspace(saved);
-      } else {
-        // Brand-new / empty shared workspace: start blank. Sample data is
-        // opt-in from Settings.
-        await storage.saveWedding(emptyWorkspace);
-        if (!cancelled) setWorkspace(emptyWorkspace);
-      }
-      setIsLoading(false);
+        const initial = saved ?? emptyWorkspace;
+        workspaceRef.current = initial;
+        setWorkspace(initial);
+        if (!saved) await storage.saveWedding(initial);
+        if (cancelled) return;
 
-      // If the adapter supports real-time sync (e.g. Firebase), subscribe so
-      // changes made by other users/devices show up here automatically.
-      if (storage.subscribeWedding) {
-        unsubscribe = storage.subscribeWedding((incoming) => {
-          if (incoming) setWorkspace(incoming);
-        });
+        // If the adapter supports real-time sync (e.g. Firebase), subscribe so
+        // changes made by other users/devices show up here automatically.
+        if (storage.subscribeWedding) {
+          unsubscribe = storage.subscribeWedding((incoming) => {
+            if (cancelled) return;
+            const next = incoming ?? emptyWorkspace;
+            workspaceRef.current = next;
+            setWorkspace(next);
+          });
+        }
+      } catch (error) {
+        // Storage failures should never leave every route rendering `null`.
+        console.error("Wedding workspace initialization failed:", error);
+        if (!cancelled) {
+          workspaceRef.current = emptyWorkspace;
+          setWorkspace(emptyWorkspace);
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
     })();
 
@@ -145,20 +156,20 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const persist = useCallback(async (next: WeddingWorkspace) => {
+    workspaceRef.current = next;
     setWorkspace(next);
     await storage.saveWedding(next);
   }, []);
 
-  // Helper to safely mutate the current workspace, falling back to blank if
-  // somehow not yet loaded (shouldn't happen once isLoading is false).
+  // Keep mutations outside React's state updater. Updaters can run more than
+  // once in Strict Mode, so persistence inside one can duplicate writes and
+  // the old implementation returned before the write had actually finished.
   const withWorkspace = useCallback(
     async (mutate: (ws: WeddingWorkspace) => WeddingWorkspace) => {
-      setWorkspace((current) => {
-        const base = current ?? emptyWorkspace;
-        const next = mutate(base);
-        storage.saveWedding(next);
-        return next;
-      });
+      const next = mutate(workspaceRef.current ?? emptyWorkspace);
+      workspaceRef.current = next;
+      setWorkspace(next);
+      await storage.saveWedding(next);
     },
     []
   );
@@ -192,13 +203,14 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
 
   const importBackup = useCallback(async (json: string) => {
     const imported = await storage.importWedding(json);
+    workspaceRef.current = imported;
     setWorkspace(imported);
   }, []);
 
   const resetAllData = useCallback(async () => {
     await storage.clearWedding();
-    setWorkspace(null);
     await storage.saveWedding(emptyWorkspace);
+    workspaceRef.current = emptyWorkspace;
     setWorkspace(emptyWorkspace);
   }, []);
 
