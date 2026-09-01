@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Users } from "lucide-react";
+import { Mail, Plus, Pencil, Trash2, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useWedding } from "../hooks/useWedding";
 import type { FamilySide, GuestSummary } from "../types/wedding";
 import { Card } from "../components/common/Card";
@@ -13,6 +14,8 @@ type FormState = Omit<GuestSummary, "id">;
 const emptyForm: FormState = {
   name: "",
   side: "both",
+  phone: "",
+  email: "",
   rsvp: "not-contacted",
   accommodationRequired: false,
 };
@@ -42,9 +45,13 @@ export function Guests() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | FamilySide>("all");
+  const [rsvpFilter, setRsvpFilter] = useState<"all" | GuestSummary["rsvp"]>("all");
+  const navigate = useNavigate();
 
   if (!workspace) return null;
-  const guests = workspace.guests.filter((g) => filter === "all" || g.side === filter);
+  const guests = workspace.guests
+    .filter((g) => filter === "all" || g.side === filter)
+    .filter((g) => rsvpFilter === "all" || g.rsvp === rsvpFilter);
 
   const openAdd = () => {
     setForm(emptyForm);
@@ -85,12 +92,18 @@ export function Guests() {
             </button>
           ))}
         </div>
-        <button
-          onClick={openAdd}
-          className="flex items-center gap-1.5 rounded-full bg-maroon px-4 py-2 text-sm font-medium text-cream transition hover:bg-maroon-deep"
-        >
-          <Plus size={16} /> Add Guest
-        </button>
+        <div className="flex gap-2">
+          <select className="input py-2 text-xs" value={rsvpFilter} onChange={(event) => setRsvpFilter(event.target.value as typeof rsvpFilter)}>
+            <option value="all">All RSVP states</option>
+            {Object.entries(rsvpLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          </select>
+          <button
+            onClick={openAdd}
+            className="flex items-center gap-1.5 rounded-full bg-maroon px-4 py-2 text-sm font-medium text-cream transition hover:bg-maroon-deep"
+          >
+            <Plus size={16} /> Add Guest
+          </button>
+        </div>
       </div>
 
       {guests.length === 0 ? (
@@ -116,8 +129,16 @@ export function Guests() {
                   {sideLabels[guest.side]}
                   {guest.accommodationRequired ? " · Needs accommodation" : ""}
                 </p>
+                {(guest.phone || guest.email) && <p className="mt-1 truncate text-xs text-charcoal-soft">{[guest.phone, guest.email].filter(Boolean).join(" · ")}</p>}
               </div>
               <div className="flex shrink-0 gap-1.5">
+                <button
+                  onClick={() => navigate("/invitations")}
+                  aria-label={`Invite ${guest.name}`}
+                  className="rounded-full p-2 text-charcoal-soft hover:bg-peach/40 hover:text-maroon-deep"
+                >
+                  <Mail size={16} />
+                </button>
                 <button
                   onClick={() => openEdit(guest)}
                   aria-label={`Edit ${guest.name}`}
@@ -155,6 +176,14 @@ export function Guests() {
                 <option value="both">Both Sides</option>
               </select>
             </Field>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Phone (with country code)">
+                <input type="tel" className="input" value={form.phone || ""} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+91 98765 43210" />
+              </Field>
+              <Field label="Email">
+                <input type="email" className="input" value={form.email || ""} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="family@example.com" />
+              </Field>
+            </div>
             <Field label="RSVP Status">
               <select
                 className="input"

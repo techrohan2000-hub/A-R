@@ -2,7 +2,7 @@ import { doc, getDoc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import type { WeddingWorkspace } from "../../types/wedding";
 import type { StorageAdapter } from "./StorageAdapter";
-import { isValidWorkspace, LocalStorageAdapter, normalizeWorkspace } from "./localStorageAdapter";
+import { isLegacySampleWorkspace, isValidWorkspace, LocalStorageAdapter, normalizeWorkspace } from "./localStorageAdapter";
 
 // Everyone who opens the app shares this single document. There's no login
 // system yet, so this is intentionally a single shared workspace rather than
@@ -61,6 +61,14 @@ export class FirebaseAdapter implements StorageAdapter {
       const snap = await withTimeout(getDoc(this.docRef), FIREBASE_LOAD_TIMEOUT_MS);
       if (snap.exists()) {
         const data = snap.data();
+        if (isLegacySampleWorkspace(data)) {
+          if (cached) {
+            await setDoc(this.docRef, cached);
+            return cached;
+          }
+          await deleteDoc(this.docRef);
+          return null;
+        }
         if (isValidWorkspace(data)) {
           const remote = normalizeWorkspace(data);
           await this.local.saveWedding(remote);
@@ -105,6 +113,9 @@ export class FirebaseAdapter implements StorageAdapter {
     if (!isValidWorkspace(parsed)) {
       throw new Error("That file doesn't look like a wedding planner backup.");
     }
+    if (isLegacySampleWorkspace(parsed)) {
+      throw new Error("Sample-data backups are no longer supported. Import a backup containing your real wedding data.");
+    }
     const normalized = normalizeWorkspace(parsed);
     await this.local.saveWedding(normalized);
     if (this.docRef) {
@@ -135,6 +146,12 @@ export class FirebaseAdapter implements StorageAdapter {
           return;
         }
         const data = snap.data();
+        if (isLegacySampleWorkspace(data)) {
+          void this.local.clearWedding();
+          void deleteDoc(this.docRef!);
+          onChange(null);
+          return;
+        }
         if (!isValidWorkspace(data)) {
           onChange(null);
           return;

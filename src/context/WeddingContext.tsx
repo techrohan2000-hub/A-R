@@ -1,8 +1,12 @@
 import { createContext, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type {
+  ActivityRecord,
   BudgetSummary,
   GuestSummary,
+  InvitationRecord,
+  NotificationState,
   PlannerItem,
+  ReminderPreferences,
   ShoppingSummary,
   TaskSummary,
   TimelineMilestone,
@@ -12,16 +16,13 @@ import type {
   WeddingWorkspace,
 } from "../types/wedding";
 import { storage } from "../services/storage";
-import { sampleWorkspace } from "../data/sampleWedding";
 
 interface WeddingContextValue {
   workspace: WeddingWorkspace | null;
   isLoading: boolean;
-  isSampleData: boolean;
   saveWedding: (wedding: Wedding) => Promise<void>;
   completeOnboarding: (wedding: Wedding) => Promise<void>;
   startFresh: () => Promise<void>;
-  loadSampleData: () => Promise<void>;
   exportBackup: () => Promise<string>;
   importBackup: (json: string) => Promise<void>;
   resetAllData: () => Promise<void>;
@@ -65,13 +66,17 @@ interface WeddingContextValue {
   addPlannerItem: (item: Omit<PlannerItem, "id">) => Promise<void>;
   updatePlannerItem: (id: string, item: Omit<PlannerItem, "id">) => Promise<void>;
   deletePlannerItem: (id: string) => Promise<void>;
+
+  // Invitations, reminders and activity
+  addInvitation: (invitation: Omit<InvitationRecord, "id" | "createdAt">) => Promise<void>;
+  updateNotificationState: (id: string, state: Partial<Omit<NotificationState, "id">>) => Promise<void>;
+  saveReminderPreferences: (preferences: ReminderPreferences) => Promise<void>;
 }
 
 export const WeddingContext = createContext<WeddingContextValue | undefined>(undefined);
 
 const emptyWedding: Wedding = {
   id: "new-wedding",
-  isSampleData: false,
   couple: {
     groomName: "",
     brideName: "",
@@ -108,6 +113,20 @@ const emptyWorkspace: WeddingWorkspace = {
   shopping: [],
   milestones: [],
   plannerItems: [],
+  invitations: [],
+  notificationStates: [],
+  reminderPreferences: {
+    enabled: true,
+    eventLeadDays: 14,
+    taskLeadDays: 7,
+    milestoneLeadDays: 14,
+    vendorLeadDays: 7,
+    rsvpFollowUpDays: 7,
+    quietHoursEnabled: false,
+    invitationSignature: "With warm regards, the wedding family",
+    rsvpText: "Please let us know if you can join us.",
+  },
+  activity: [],
 };
 
 function makeId(prefix: string) {
@@ -192,7 +211,7 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     async (wedding: Wedding) => {
       await withWorkspace((ws) => ({
         ...ws,
-        wedding: { ...wedding, isSampleData: false, onboardingComplete: true },
+        wedding: { ...wedding, onboardingComplete: true },
       }));
     },
     [withWorkspace]
@@ -200,10 +219,6 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
 
   const startFresh = useCallback(async () => {
     await persist(emptyWorkspace);
-  }, [persist]);
-
-  const loadSampleData = useCallback(async () => {
-    await persist(sampleWorkspace);
   }, [persist]);
 
   const exportBackup = useCallback(async () => storage.exportWedding(), []);
@@ -424,14 +439,67 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     [withWorkspace]
   );
 
+  const addInvitation = useCallback(
+    async (invitation: Omit<InvitationRecord, "id" | "createdAt">) => {
+      const now = new Date().toISOString();
+      await withWorkspace((ws) => {
+        const guest = ws.guests.find((entry) => entry.id === invitation.guestId);
+        const activity: ActivityRecord = {
+          id: makeId("activity"),
+          type: "invitation",
+          message: `${invitation.status === "sent" ? "Sent" : "Opened"} ${invitation.channel} invitation for ${guest?.name ?? "guest"}`,
+          createdAt: now,
+        };
+        return {
+          ...ws,
+          invitations: [...ws.invitations, { ...invitation, id: makeId("invitation"), createdAt: now }],
+          guests: invitation.status === "sent"
+            ? ws.guests.map((entry) => entry.id === invitation.guestId && entry.rsvp === "not-contacted"
+              ? { ...entry, rsvp: "invited" as const }
+              : entry)
+            : ws.guests,
+          activity: [activity, ...ws.activity].slice(0, 100),
+        };
+      });
+    },
+    [withWorkspace]
+  );
+
+  const updateNotificationState = useCallback(
+    async (id: string, state: Partial<Omit<NotificationState, "id">>) => {
+      await withWorkspace((ws) => {
+        const existing = ws.notificationStates.find((entry) => entry.id === id);
+        const next = existing
+          ? ws.notificationStates.map((entry) => entry.id === id ? { ...entry, ...state } : entry)
+          : [...ws.notificationStates, { id, ...state }];
+        return { ...ws, notificationStates: next };
+      });
+    },
+    [withWorkspace]
+  );
+
+  const saveReminderPreferences = useCallback(
+    async (preferences: ReminderPreferences) => {
+      await withWorkspace((ws) => ({
+        ...ws,
+        reminderPreferences: preferences,
+        activity: [{
+          id: makeId("activity"),
+          type: "settings" as const,
+          message: "Updated reminder and invitation settings",
+          createdAt: new Date().toISOString(),
+        }, ...ws.activity].slice(0, 100),
+      }));
+    },
+    [withWorkspace]
+  );
+
   const value: WeddingContextValue = {
     workspace,
     isLoading,
-    isSampleData: workspace?.wedding.isSampleData ?? false,
     saveWedding,
     completeOnboarding,
     startFresh,
-    loadSampleData,
     exportBackup,
     importBackup,
     resetAllData,
@@ -459,6 +527,9 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     addPlannerItem,
     updatePlannerItem,
     deletePlannerItem,
+    addInvitation,
+    updateNotificationState,
+    saveReminderPreferences,
   };
 
   return <WeddingContext.Provider value={value}>{children}</WeddingContext.Provider>;

@@ -1,4 +1,4 @@
-import type { Wedding, WeddingWorkspace } from "../../types/wedding";
+import type { ReminderPreferences, Wedding, WeddingWorkspace } from "../../types/wedding";
 import type { StorageAdapter } from "./StorageAdapter";
 
 const STORAGE_KEY = "wedding-planner:workspace:v1";
@@ -13,19 +13,35 @@ export function isValidWorkspace(value: unknown): value is WeddingWorkspace {
   return isRecord(v.wedding);
 }
 
+export function isLegacySampleWorkspace(value: unknown): boolean {
+  if (!isRecord(value) || !isRecord(value.wedding)) return false;
+  return value.wedding.isSampleData === true;
+}
+
 export function normalizeWorkspace(workspace: WeddingWorkspace): WeddingWorkspace {
   const now = new Date().toISOString();
   const wedding = workspace.wedding as Partial<Wedding>;
   const couple: Record<string, unknown> = isRecord(wedding.couple) ? wedding.couple : {};
   const tradition: Record<string, unknown> = isRecord(wedding.tradition) ? wedding.tradition : {};
   const planning: Record<string, unknown> = isRecord(wedding.planning) ? wedding.planning : {};
+  const saved = workspace as Partial<WeddingWorkspace>;
+  const preferenceDefaults: ReminderPreferences = {
+    enabled: true,
+    eventLeadDays: 14,
+    taskLeadDays: 7,
+    milestoneLeadDays: 14,
+    vendorLeadDays: 7,
+    rsvpFollowUpDays: 7,
+    quietHoursEnabled: false,
+    invitationSignature: "With warm regards, the wedding family",
+    rsvpText: "Please let us know if you can join us.",
+  };
+  const preferences: Record<string, unknown> = isRecord(saved.reminderPreferences) ? saved.reminderPreferences : {};
 
   return {
     ...workspace,
     wedding: {
-      ...wedding,
       id: typeof wedding.id === "string" ? wedding.id : "new-wedding",
-      isSampleData: wedding.isSampleData === true,
       couple: {
         groomName: typeof couple.groomName === "string" ? couple.groomName : "",
         brideName: typeof couple.brideName === "string" ? couple.brideName : "",
@@ -68,6 +84,20 @@ export function normalizeWorkspace(workspace: WeddingWorkspace): WeddingWorkspac
     shopping: Array.isArray(workspace.shopping) ? workspace.shopping : [],
     milestones: Array.isArray(workspace.milestones) ? workspace.milestones : [],
     plannerItems: Array.isArray(workspace.plannerItems) ? workspace.plannerItems : [],
+    invitations: Array.isArray(saved.invitations) ? saved.invitations : [],
+    notificationStates: Array.isArray(saved.notificationStates) ? saved.notificationStates : [],
+    reminderPreferences: {
+      enabled: typeof preferences.enabled === "boolean" ? preferences.enabled : preferenceDefaults.enabled,
+      eventLeadDays: typeof preferences.eventLeadDays === "number" ? preferences.eventLeadDays : preferenceDefaults.eventLeadDays,
+      taskLeadDays: typeof preferences.taskLeadDays === "number" ? preferences.taskLeadDays : preferenceDefaults.taskLeadDays,
+      milestoneLeadDays: typeof preferences.milestoneLeadDays === "number" ? preferences.milestoneLeadDays : preferenceDefaults.milestoneLeadDays,
+      vendorLeadDays: typeof preferences.vendorLeadDays === "number" ? preferences.vendorLeadDays : preferenceDefaults.vendorLeadDays,
+      rsvpFollowUpDays: typeof preferences.rsvpFollowUpDays === "number" ? preferences.rsvpFollowUpDays : preferenceDefaults.rsvpFollowUpDays,
+      quietHoursEnabled: typeof preferences.quietHoursEnabled === "boolean" ? preferences.quietHoursEnabled : preferenceDefaults.quietHoursEnabled,
+      invitationSignature: typeof preferences.invitationSignature === "string" ? preferences.invitationSignature : preferenceDefaults.invitationSignature,
+      rsvpText: typeof preferences.rsvpText === "string" ? preferences.rsvpText : preferenceDefaults.rsvpText,
+    },
+    activity: Array.isArray(saved.activity) ? saved.activity : [],
   };
 }
 
@@ -85,6 +115,10 @@ export class LocalStorageAdapter implements StorageAdapter {
     if (!raw) return null;
     try {
       const parsed = JSON.parse(raw);
+      if (isLegacySampleWorkspace(parsed)) {
+        window.localStorage.removeItem(STORAGE_KEY);
+        return null;
+      }
       return isValidWorkspace(parsed) ? normalizeWorkspace(parsed) : null;
     } catch {
       return null;
@@ -104,6 +138,9 @@ export class LocalStorageAdapter implements StorageAdapter {
       parsed = JSON.parse(json);
     } catch {
       throw new Error("That file isn't valid JSON. Export a fresh backup and try again.");
+    }
+    if (isLegacySampleWorkspace(parsed)) {
+      throw new Error("Sample-data backups are no longer supported. Import a backup containing your real wedding data.");
     }
     if (!isValidWorkspace(parsed)) {
       throw new Error("That file doesn't look like a wedding planner backup.");

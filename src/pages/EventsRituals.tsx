@@ -14,6 +14,8 @@ type FormState = Omit<WeddingEventSummary, "id">;
 const emptyForm: FormState = {
   name: "",
   date: new Date().toISOString().slice(0, 10),
+  time: "",
+  venue: "",
   enabled: true,
   isCustom: true,
 };
@@ -52,7 +54,7 @@ export function EventsRituals() {
   };
 
   const toggleEnabled = async (event: WeddingEventSummary) => {
-    await updateEvent(event.id, { name: event.name, date: event.date, enabled: !event.enabled, isCustom: event.isCustom });
+    await updateEvent(event.id, { name: event.name, date: event.date, time: event.time, venue: event.venue, enabled: !event.enabled, isCustom: event.isCustom });
   };
 
   return (
@@ -95,6 +97,8 @@ export function EventsRituals() {
                     <p className="font-medium text-charcoal">{event.name}</p>
                     <p className="mt-0.5 text-sm text-charcoal-soft">
                       {formatPrettyDate(event.date)}
+                      {event.time ? ` at ${event.time}` : ""}
+                      {event.venue ? ` · ${event.venue}` : ""}
                       {event.enabled && days >= 0 ? ` · ${days} day${days === 1 ? "" : "s"} away` : ""}
                     </p>
                   </div>
@@ -132,8 +136,16 @@ export function EventsRituals() {
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
             </Field>
-            <Field label="Date">
-              <input type="date" className="input" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Date">
+                <input type="date" className="input" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+              </Field>
+              <Field label="Time">
+                <input type="time" className="input" value={form.time || ""} onChange={(e) => setForm({ ...form, time: e.target.value })} />
+              </Field>
+            </div>
+            <Field label="Venue">
+              <input className="input" value={form.venue || ""} onChange={(e) => setForm({ ...form, venue: e.target.value })} placeholder="Uses the main wedding venue if blank" />
             </Field>
             <label className="flex items-center gap-2.5 text-sm">
               <input

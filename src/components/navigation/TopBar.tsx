@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Search, Sparkles } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { navItems } from "../../routes/navConfig";
+import { NotificationCenter } from "../notifications/NotificationCenter";
 
 export function TopBar() {
   const location = useLocation();
@@ -26,23 +27,26 @@ export function TopBar() {
         </div>
         <h1 className="truncate text-2xl leading-tight text-maroon-deep">{current?.label ?? "Wedding Planner"}</h1>
       </div>
-      <label className="hidden max-w-xs flex-1 items-center gap-2 rounded-full border border-beige bg-white/80 px-3.5 py-2 shadow-sm transition focus-within:border-gold-soft focus-within:ring-2 focus-within:ring-peach/50 sm:flex">
-        <Search size={16} className="text-charcoal-soft" />
-        <input
-          type="search"
-          list="planner-sections"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") goToMatch();
-          }}
-          placeholder="Go to a planner section…"
-          className="w-full bg-transparent text-sm text-charcoal outline-none placeholder:text-charcoal-soft/60"
-        />
-        <datalist id="planner-sections">
-          {navItems.map((item) => <option key={item.path} value={item.label} />)}
-        </datalist>
-      </label>
+      <div className="flex flex-1 items-center justify-end gap-3">
+        <label className="hidden max-w-xs flex-1 items-center gap-2 rounded-full border border-beige bg-white/80 px-3.5 py-2 shadow-sm transition focus-within:border-gold-soft focus-within:ring-2 focus-within:ring-peach/50 sm:flex">
+          <Search size={16} className="text-charcoal-soft" />
+          <input
+            type="search"
+            list="planner-sections"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") goToMatch();
+            }}
+            placeholder="Go to a planner section…"
+            className="w-full bg-transparent text-sm text-charcoal outline-none placeholder:text-charcoal-soft/60"
+          />
+          <datalist id="planner-sections">
+            {navItems.map((item) => <option key={item.path} value={item.label} />)}
+          </datalist>
+        </label>
+        <NotificationCenter />
+      </div>
     </header>
   );
 }

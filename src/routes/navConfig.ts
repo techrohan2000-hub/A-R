@@ -1,5 +1,6 @@
 import {
   LayoutDashboard,
+  SlidersHorizontal,
   GanttChartSquare,
   Flame,
   ListChecks,
@@ -37,6 +38,7 @@ export const primaryMobileCount = 5;
 
 export const navItems: NavItem[] = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard, phase: 1 },
+  { path: "/manage", label: "Manage Site", icon: SlidersHorizontal, phase: 1 },
   { path: "/timeline", label: "Timeline", icon: GanttChartSquare, phase: 2 },
   { path: "/events-rituals", label: "Events & Rituals", icon: Flame, phase: 2 },
   { path: "/tasks", label: "Tasks", icon: ListChecks, phase: 2 },

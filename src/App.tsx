@@ -12,6 +12,8 @@ import { Shopping } from "./pages/Shopping";
 import { Budget } from "./pages/Budget";
 import { EventsRituals } from "./pages/EventsRituals";
 import { Timeline } from "./pages/Timeline";
+import { Invitations } from "./pages/Invitations";
+import { Management } from "./pages/Management";
 import { navItems } from "./routes/navConfig";
 import { useWedding } from "./hooks/useWedding";
 
@@ -25,6 +27,8 @@ const builtPaths = new Set([
   "/budget",
   "/events-rituals",
   "/timeline",
+  "/invitations",
+  "/manage",
 ]);
 
 // HashRouter is used deliberately: GitHub Pages serves static files with no
@@ -59,6 +63,8 @@ function AppRoutes() {
           <Route path="/budget" element={<Budget />} />
           <Route path="/events-rituals" element={<EventsRituals />} />
           <Route path="/timeline" element={<Timeline />} />
+          <Route path="/invitations" element={<Invitations />} />
+          <Route path="/manage" element={<Management />} />
           {navItems
             .filter((item) => !builtPaths.has(item.path))
             .map((item) => (

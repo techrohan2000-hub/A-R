@@ -21,7 +21,7 @@ import { formatINR } from "../utils/formatters";
 import { daysUntil, dueLabel, formatPrettyDate } from "../utils/dateUtils";
 
 export function Dashboard() {
-  const { workspace, isSampleData } = useWedding();
+  const { workspace } = useWedding();
 
   const stats = useMemo(() => {
     if (!workspace) return null;
@@ -128,13 +128,6 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {isSampleData && (
-        <div className="rounded-xl border border-gold-soft bg-peach/30 px-4 py-2.5 text-sm text-maroon-deep">
-          You're viewing <strong>sample demo data</strong> for {couple.groomName} &amp; {couple.brideName}. Head to{" "}
-          <span className="font-medium underline">Settings</span> to start fresh with your own wedding.
-        </div>
-      )}
-
       <Countdown
         featured={featured}
         groomName={couple.groomName}

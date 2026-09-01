@@ -44,6 +44,8 @@ export interface WeddingEventSummary {
   id: string;
   name: string;
   date: string; // ISO date
+  time?: string;
+  venue?: string;
   enabled: boolean;
   isCustom?: boolean;
 }
@@ -68,7 +70,6 @@ export interface PlanningPreferences {
 
 export interface Wedding {
   id: string;
-  isSampleData: boolean;
   couple: Couple;
   tradition: TraditionSetup;
   planning: PlanningPreferences;
@@ -82,8 +83,7 @@ export interface Wedding {
 export type Priority = "critical" | "high" | "medium" | "low";
 export type TaskStatus = "not-started" | "in-progress" | "waiting" | "completed" | "cancelled";
 
-// Lightweight task shape used to compute Phase-1 dashboard stats from sample data.
-// The full Task Management module (Phase 2) will expand this.
+// Lightweight task shape used by the dashboard and task module.
 export interface TaskSummary {
   id: string;
   title: string;
@@ -105,8 +105,51 @@ export interface GuestSummary {
   id: string;
   name: string;
   side: FamilySide;
+  phone?: string;
+  email?: string;
   rsvp: "not-contacted" | "invited" | "maybe" | "confirmed" | "declined";
   accommodationRequired: boolean;
+}
+
+export type InvitationChannel = "whatsapp" | "email" | "sms";
+export type InvitationStatus = "draft" | "opened" | "sent";
+
+export interface InvitationRecord {
+  id: string;
+  guestId: string;
+  eventId: string;
+  channel: InvitationChannel;
+  message: string;
+  status: InvitationStatus;
+  createdAt: string;
+  openedAt?: string;
+  sentAt?: string;
+}
+
+export interface ReminderPreferences {
+  enabled: boolean;
+  eventLeadDays: number;
+  taskLeadDays: number;
+  milestoneLeadDays: number;
+  vendorLeadDays: number;
+  rsvpFollowUpDays: number;
+  quietHoursEnabled: boolean;
+  invitationSignature: string;
+  rsvpText: string;
+}
+
+export interface NotificationState {
+  id: string;
+  readAt?: string;
+  dismissedAt?: string;
+  snoozedUntil?: string;
+}
+
+export interface ActivityRecord {
+  id: string;
+  type: "invitation" | "notification" | "settings";
+  message: string;
+  createdAt: string;
 }
 
 export interface VendorSummary {
@@ -166,4 +209,8 @@ export interface WeddingWorkspace {
   shopping: ShoppingSummary[];
   milestones: TimelineMilestone[];
   plannerItems: PlannerItem[];
+  invitations: InvitationRecord[];
+  notificationStates: NotificationState[];
+  reminderPreferences: ReminderPreferences;
+  activity: ActivityRecord[];
 }

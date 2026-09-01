@@ -1,18 +1,20 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Download, Upload, RotateCcw, Trash2, ShieldAlert, Pencil, Cloud, HardDrive } from "lucide-react";
+import { Bell, Download, Upload, RotateCcw, Trash2, ShieldAlert, Pencil, Cloud, HardDrive } from "lucide-react";
 import { useWedding } from "../hooks/useWedding";
 import { Card } from "../components/common/Card";
 import { isFirebaseConfigured } from "../services/firebase";
 
 export function Settings() {
-  const { workspace, exportBackup, importBackup, resetAllData, loadSampleData, startFresh } = useWedding();
+  const { workspace, exportBackup, importBackup, resetAllData, startFresh, saveReminderPreferences } = useWedding();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<null | "reset" | "fresh">(null);
+  const [preferences, setPreferences] = useState(() => workspace?.reminderPreferences);
 
   if (!workspace) return null;
+  const reminderPreferences = preferences ?? workspace.reminderPreferences;
   const { couple, tradition, planning } = workspace.wedding;
 
   const handleExport = async () => {
@@ -85,6 +87,73 @@ export function Settings() {
 
       <Card>
         <h2 className="mb-1 flex items-center gap-2 text-lg text-maroon-deep">
+          <Bell size={18} /> Reminders &amp; Invitations
+        </h2>
+        <p className="mb-4 text-sm text-charcoal-soft">
+          Reminders are calculated when this website is open. Invitation buttons open your phone or email app for free; they do not send automatically.
+        </p>
+        <label className="mb-4 flex items-center gap-2.5 text-sm font-medium text-charcoal">
+          <input
+            type="checkbox"
+            checked={reminderPreferences.enabled}
+            onChange={(event) => setPreferences({ ...reminderPreferences, enabled: event.target.checked })}
+            className="h-4 w-4 accent-maroon"
+          />
+          Enable in-app reminders
+        </label>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {([
+            ["eventLeadDays", "Event notice (days)"],
+            ["taskLeadDays", "Task notice (days)"],
+            ["milestoneLeadDays", "Milestone notice (days)"],
+            ["vendorLeadDays", "Vendor payment notice (days)"],
+            ["rsvpFollowUpDays", "RSVP follow-up after (days)"],
+          ] as const).map(([key, label]) => (
+            <label key={key} className="text-sm text-charcoal-soft">
+              {label}
+              <input
+                type="number"
+                min={0}
+                max={90}
+                className="input mt-1"
+                value={reminderPreferences[key]}
+                onChange={(event) => setPreferences({ ...reminderPreferences, [key]: Math.max(0, Number(event.target.value)) })}
+              />
+            </label>
+          ))}
+        </div>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <label className="text-sm text-charcoal-soft">
+            RSVP line
+            <input className="input mt-1" value={reminderPreferences.rsvpText} onChange={(event) => setPreferences({ ...reminderPreferences, rsvpText: event.target.value })} />
+          </label>
+          <label className="text-sm text-charcoal-soft">
+            Invitation signature
+            <input className="input mt-1" value={reminderPreferences.invitationSignature} onChange={(event) => setPreferences({ ...reminderPreferences, invitationSignature: event.target.value })} />
+          </label>
+        </div>
+        <label className="mt-4 flex items-center gap-2.5 text-sm text-charcoal-soft">
+          <input
+            type="checkbox"
+            checked={reminderPreferences.quietHoursEnabled}
+            onChange={(event) => setPreferences({ ...reminderPreferences, quietHoursEnabled: event.target.checked })}
+            className="h-4 w-4 accent-maroon"
+          />
+          Hide the unread badge between 10 PM and 8 AM
+        </label>
+        <button
+          onClick={async () => {
+            await saveReminderPreferences(reminderPreferences);
+            setMessage("Reminder settings saved.");
+          }}
+          className="mt-4 rounded-full bg-maroon px-4 py-2.5 text-sm font-medium text-cream hover:bg-maroon-deep"
+        >
+          Save reminder settings
+        </button>
+      </Card>
+
+      <Card>
+        <h2 className="mb-1 flex items-center gap-2 text-lg text-maroon-deep">
           {isFirebaseConfigured ? <Cloud size={18} /> : <HardDrive size={18} />}
           Data Sync
         </h2>
@@ -138,12 +207,6 @@ export function Settings() {
             className="flex items-center gap-2 rounded-full border border-beige px-4 py-2.5 text-sm font-medium text-charcoal-soft transition hover:bg-cream-soft"
           >
             <RotateCcw size={16} /> Start Fresh (blank wedding)
-          </button>
-          <button
-            onClick={() => loadSampleData()}
-            className="flex items-center gap-2 rounded-full border border-beige px-4 py-2.5 text-sm font-medium text-charcoal-soft transition hover:bg-cream-soft"
-          >
-            <RotateCcw size={16} /> Load Sample Data (for reference)
           </button>
           <button
             onClick={() => setConfirmAction("reset")}

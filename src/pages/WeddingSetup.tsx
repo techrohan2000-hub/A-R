@@ -110,7 +110,6 @@ export function WeddingSetup() {
     const base = workspace?.wedding;
     await completeOnboarding({
       id: base?.id ?? crypto.randomUUID(),
-      isSampleData: false,
       couple,
       tradition,
       planning,
