@@ -60,7 +60,9 @@ export function Budget() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <StatCard icon={Wallet} label="Estimated" value={formatINR(totals.estimated)} />
         <StatCard icon={Wallet} label="Paid" value={formatINR(totals.paid)} tone="success" />
-        <StatCard icon={Wallet} label="Pending" value={formatINR(totals.pending)} tone="warning" />
+        <div className="col-span-2 sm:col-span-1">
+          <StatCard icon={Wallet} label="Pending" value={formatINR(totals.pending)} tone="warning" />
+        </div>
       </div>
 
       <div className="flex items-center justify-between">

@@ -17,14 +17,14 @@ const toneStyles: Record<NonNullable<StatCardProps["tone"]>, string> = {
 
 export function StatCard({ icon: Icon, label, value, tone = "default", sublabel }: StatCardProps) {
   return (
-    <Card className="flex items-start gap-4">
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${toneStyles[tone]}`}>
-        <Icon size={20} strokeWidth={1.75} />
+    <Card className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11 ${toneStyles[tone]}`}>
+        <Icon size={18} strokeWidth={1.75} />
       </div>
       <div className="min-w-0">
-        <p className="font-data text-2xl font-semibold leading-tight text-charcoal">{value}</p>
-        <p className="mt-0.5 truncate text-sm text-charcoal-soft">{label}</p>
-        {sublabel && <p className="mt-0.5 text-xs text-charcoal-soft/70">{sublabel}</p>}
+        <p className="truncate font-data text-lg font-semibold leading-tight text-charcoal sm:text-2xl">{value}</p>
+        <p className="mt-0.5 truncate text-xs text-charcoal-soft sm:text-sm">{label}</p>
+        {sublabel && <p className="mt-0.5 truncate text-[11px] text-charcoal-soft/70 sm:text-xs">{sublabel}</p>}
       </div>
     </Card>
   );

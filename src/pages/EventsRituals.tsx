@@ -63,9 +63,9 @@ export function EventsRituals() {
         <p className="text-sm text-charcoal-soft">{events.length} event{events.length === 1 ? "" : "s"} &amp; rituals</p>
         <button
           onClick={openAdd}
-          className="flex items-center gap-1.5 rounded-full bg-maroon px-4 py-2 text-sm font-medium text-cream transition hover:bg-maroon-deep"
+          className="flex shrink-0 items-center gap-1.5 rounded-full bg-maroon px-4 py-2 text-sm font-medium text-cream transition hover:bg-maroon-deep"
         >
-          <Plus size={16} /> Add Event / Ritual
+          <Plus size={16} /> <span className="sm:hidden">Add</span><span className="hidden sm:inline">Add Event / Ritual</span>
         </button>
       </div>
 
@@ -82,8 +82,8 @@ export function EventsRituals() {
           {events.map((event) => {
             const days = daysUntil(event.date);
             return (
-              <Card key={event.id} className={`flex items-center justify-between gap-4 ${!event.enabled ? "opacity-50" : ""}`}>
-                <div className="flex items-center gap-3">
+              <Card key={event.id} className={`flex items-center justify-between gap-3 ${!event.enabled ? "opacity-50" : ""}`}>
+                <div className="flex min-w-0 items-center gap-3">
                   <label className="flex items-center">
                     <input
                       type="checkbox"
@@ -93,7 +93,7 @@ export function EventsRituals() {
                       aria-label={`Enable ${event.name}`}
                     />
                   </label>
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-medium text-charcoal">{event.name}</p>
                     <p className="mt-0.5 text-sm text-charcoal-soft">
                       {formatPrettyDate(event.date)}

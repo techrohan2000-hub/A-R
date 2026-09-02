@@ -33,8 +33,8 @@ export interface NavItem {
   phase: 1 | 2 | 3 | 4 | 5 | 6 | 7;
 }
 
-// Bottom nav (mobile) shows only the first 5 — the rest live behind "More".
-export const primaryMobileCount = 5;
+// Bottom nav (mobile) shows these four plus "More". Sidebar order stays unchanged.
+export const primaryMobilePaths = ["/", "/tasks", "/guests", "/budget"] as const;
 
 export const navItems: NavItem[] = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard, phase: 1 },

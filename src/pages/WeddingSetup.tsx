@@ -123,9 +123,9 @@ export function WeddingSetup() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto min-h-dvh max-w-2xl space-y-6 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-8">
       <div>
-        <h1 className="text-3xl text-maroon-deep">Wedding Tradition Setup</h1>
+            <h1 className="text-2xl text-maroon-deep sm:text-3xl">Wedding Tradition Setup</h1>
         <p className="mt-1 text-sm text-charcoal-soft">
           Tell us the basics. Every ritual and custom stays fully editable later — nothing here is locked in.
         </p>

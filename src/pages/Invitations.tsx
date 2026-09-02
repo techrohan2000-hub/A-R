@@ -90,9 +90,9 @@ export function Invitations() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-gold-soft/70 bg-gradient-to-br from-white via-cream-soft to-peach/35 p-6 sm:p-8">
+      <section className="rounded-3xl border border-gold-soft/70 bg-gradient-to-br from-white via-cream-soft to-peach/35 p-5 sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Free invitation sharing</p>
-        <h2 className="mt-1 text-2xl text-maroon-deep">Invite your guests</h2>
+        <h2 className="mt-1 text-xl text-maroon-deep sm:text-2xl">Invite your guests</h2>
         <p className="mt-2 max-w-2xl text-sm text-charcoal-soft">
           Choose guests, then open a prefilled WhatsApp, email, or SMS message. You stay in control and confirm each send.
         </p>

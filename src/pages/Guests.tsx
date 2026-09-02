@@ -79,12 +79,12 @@ export function Guests() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-1.5">
+        <div className="-mx-4 flex max-w-full gap-1.5 overflow-x-auto px-4 pb-0.5 sm:mx-0 sm:px-0">
           {(["all", "bride", "groom", "both"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 filter === f ? "bg-maroon text-cream" : "bg-cream-soft text-charcoal-soft hover:bg-peach/40"
               }`}
             >
@@ -92,14 +92,14 @@ export function Guests() {
             </button>
           ))}
         </div>
-        <div className="flex gap-2">
-          <select className="input py-2 text-xs" value={rsvpFilter} onChange={(event) => setRsvpFilter(event.target.value as typeof rsvpFilter)}>
+        <div className="flex w-full gap-2 sm:w-auto">
+          <select className="input min-w-0 flex-1 py-2 text-sm sm:flex-none sm:text-xs" value={rsvpFilter} onChange={(event) => setRsvpFilter(event.target.value as typeof rsvpFilter)}>
             <option value="all">All RSVP states</option>
             {Object.entries(rsvpLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
           <button
             onClick={openAdd}
-            className="flex items-center gap-1.5 rounded-full bg-maroon px-4 py-2 text-sm font-medium text-cream transition hover:bg-maroon-deep"
+            className="flex shrink-0 items-center gap-1.5 rounded-full bg-maroon px-4 py-2 text-sm font-medium text-cream transition hover:bg-maroon-deep"
           >
             <Plus size={16} /> Add Guest
           </button>

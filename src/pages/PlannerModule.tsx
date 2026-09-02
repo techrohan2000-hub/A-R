@@ -108,7 +108,7 @@ export function PlannerModule() {
 
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-3xl border border-gold-soft/70 bg-gradient-to-br from-white/90 via-cream-soft to-peach/35 p-6 shadow-[0_18px_50px_-32px_rgba(74,20,32,0.45)] sm:p-8">
+      <section className="relative overflow-hidden rounded-3xl border border-gold-soft/70 bg-gradient-to-br from-white/90 via-cream-soft to-peach/35 p-5 shadow-[0_18px_50px_-32px_rgba(74,20,32,0.45)] sm:p-8">
         <div className="absolute -right-10 -top-12 h-40 w-40 rounded-full border border-gold-soft/40" />
         <div className="absolute -right-4 top-6 h-24 w-24 rounded-full border border-maroon/10" />
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -118,11 +118,11 @@ export function PlannerModule() {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Wedding planning</p>
-              <h2 className="mt-1 text-2xl text-maroon-deep">{navItem?.label}</h2>
+              <h2 className="mt-1 text-xl text-maroon-deep sm:text-2xl">{navItem?.label}</h2>
               <p className="mt-1 max-w-xl text-sm text-charcoal-soft">{config.description}</p>
             </div>
           </div>
-          <button onClick={openAdd} className="inline-flex items-center justify-center gap-2 rounded-full bg-maroon px-5 py-2.5 text-sm font-semibold text-cream shadow-md shadow-maroon/15 transition hover:-translate-y-0.5 hover:bg-maroon-deep">
+          <button onClick={openAdd} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-maroon px-5 py-2.5 text-sm font-semibold text-cream shadow-md shadow-maroon/15 transition hover:bg-maroon-deep lg:hover:-translate-y-0.5">
             <Plus size={17} /> Add {config.singular}
           </button>
         </div>
@@ -150,7 +150,7 @@ export function PlannerModule() {
       <div className="flex flex-col gap-3 rounded-2xl border border-beige bg-white/55 p-3 sm:flex-row">
         <label className="flex flex-1 items-center gap-2 rounded-xl bg-white px-3 py-2">
           <Search size={16} className="text-charcoal-soft" />
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${navItem?.label.toLowerCase()}…`} className="w-full bg-transparent text-sm outline-none placeholder:text-charcoal-soft/60" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${navItem?.label.toLowerCase()}…`} className="w-full bg-transparent text-base outline-none placeholder:text-charcoal-soft/60 sm:text-sm" />
         </label>
         <select value={status} onChange={(event) => setStatus(event.target.value)} className="input sm:w-44">
           <option>All</option>

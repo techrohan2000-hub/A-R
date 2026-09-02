@@ -160,7 +160,7 @@ export function Dashboard() {
         </div>
       )}
 
-      <div className="stagger-fade grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="stagger-fade grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
         <StatCard icon={ListChecks} label="Total Tasks" value={String(stats.totalTasks)} />
         <StatCard icon={CheckCircle2} label="Completed" value={String(stats.completedTasks)} tone="success" />
         <StatCard icon={Clock} label="Pending Tasks" value={String(stats.pendingTasks)} />

@@ -40,7 +40,7 @@ function AppRoutes() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-cream px-6 text-center">
+      <div className="flex min-h-dvh items-center justify-center bg-cream px-6 text-center">
         <div>
           <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-gold-soft border-t-maroon" />
           <p className="text-sm text-charcoal-soft">Loading wedding data…</p>

@@ -29,9 +29,9 @@ export function Management() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-gold-soft/70 bg-gradient-to-br from-white via-cream-soft to-peach/35 p-6 sm:p-8">
+      <section className="rounded-3xl border border-gold-soft/70 bg-gradient-to-br from-white via-cream-soft to-peach/35 p-5 sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Shared command center</p>
-        <h2 className="mt-1 text-2xl text-maroon-deep">Site management</h2>
+        <h2 className="mt-1 text-xl text-maroon-deep sm:text-2xl">Site management</h2>
         <p className="mt-2 text-sm text-charcoal-soft">Review what needs attention across planning, guests, invitations, vendors, and budget.</p>
       </section>
 

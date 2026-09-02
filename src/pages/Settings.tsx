@@ -218,18 +218,21 @@ export function Settings() {
       </Card>
 
       {confirmAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/40 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-cream p-6">
+        <div className="fixed inset-0 z-50 flex items-end bg-charcoal/40 sm:items-center sm:p-4">
+          <div
+            className="anim-sheet w-full max-w-sm rounded-t-3xl bg-cream p-6 sm:mx-auto sm:rounded-2xl sm:animate-none"
+            style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
+          >
             <h3 className="mb-2 text-lg text-maroon-deep">Are you sure?</h3>
             <p className="mb-5 text-sm text-charcoal-soft">
               {confirmAction === "reset"
                 ? "This permanently deletes all wedding data stored in this browser and cannot be undone. Consider exporting a backup first."
                 : "This clears the current plan and starts a brand-new blank wedding. Consider exporting a backup first."}
             </p>
-            <div className="flex justify-end gap-3">
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:justify-end">
               <button
                 onClick={() => setConfirmAction(null)}
-                className="rounded-full px-4 py-2 text-sm font-medium text-charcoal-soft"
+                className="min-h-11 rounded-full px-4 py-2.5 text-sm font-medium text-charcoal-soft"
               >
                 Cancel
               </button>
@@ -239,7 +242,7 @@ export function Settings() {
                   if (confirmAction === "fresh") await startFresh();
                   setConfirmAction(null);
                 }}
-                className="rounded-full bg-[#c85a5a] px-4 py-2 text-sm font-medium text-white"
+                className="min-h-11 rounded-full bg-[#c85a5a] px-4 py-2.5 text-sm font-medium text-white"
               >
                 Yes, continue
               </button>

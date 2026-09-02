@@ -32,7 +32,7 @@ function initialsOf(name: string) {
 function Medallion({ groomName, brideName, photoUrl }: { groomName: string; brideName: string; photoUrl?: string }) {
   return (
     <div className="anim-medallion shrink-0">
-      <div className="relative h-28 w-28 sm:h-32 sm:w-32">
+      <div className="relative h-24 w-24 sm:h-32 sm:w-32">
         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-soft via-gold to-gold-soft p-[3px] shadow-lg shadow-maroon-deep/40">
           <div className="h-full w-full overflow-hidden rounded-full ring-2 ring-cream/80">
             {photoUrl ? (
@@ -83,23 +83,23 @@ export function Countdown({ featured, groomName, brideName, photoUrl }: Countdow
   // No date set anywhere yet — a warm invitation to add one, not a broken countdown.
   if (!featured || !countdown) {
     return (
-      <div className="relative overflow-hidden rounded-3xl bg-maroon px-6 py-9 text-cream sm:px-10 sm:py-10">
+      <div className="relative overflow-hidden rounded-3xl bg-maroon px-5 py-7 text-cream sm:px-10 sm:py-10">
         <ArchMotif />
-        <div className="relative flex flex-col items-center gap-6 text-center sm:flex-row sm:items-center sm:gap-8 sm:text-left">
+        <div className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:items-center sm:gap-8 sm:text-left">
           <Medallion groomName={groomName} brideName={brideName} photoUrl={photoUrl} />
           <div className="min-w-0 flex-1">
-            <p className="anim-fade-1 font-body text-sm uppercase tracking-[0.2em] text-peach/90">
+            <p className="anim-fade-1 truncate font-body text-sm uppercase tracking-[0.2em] text-peach/90">
               {groomName || "Groom"} &amp; {brideName || "Bride"}
             </p>
-            <h1 className="anim-fade-2 mt-2 font-display text-3xl text-cream sm:text-4xl">Your Story Begins</h1>
+            <h1 className="anim-fade-2 mt-2 font-display text-[1.7rem] leading-tight text-cream sm:text-4xl">Your Story Begins</h1>
             <p className="anim-fade-3 mt-1 max-w-md font-body text-sm text-cream/80">
               No dates set just yet. Add your engagement or wedding date to start the countdown.
             </p>
             <button
               onClick={() => navigate("/events-rituals")}
-              className="anim-fade-4 mt-5 inline-flex items-center gap-2 rounded-full bg-cream/15 px-5 py-2.5 text-sm font-medium text-cream ring-1 ring-cream/25 backdrop-blur-sm transition hover:bg-cream/25"
+              className="anim-fade-4 mt-5 inline-flex max-w-full items-center gap-2 rounded-full bg-cream/15 px-4 py-2.5 text-sm font-medium text-cream ring-1 ring-cream/25 backdrop-blur-sm transition hover:bg-cream/25 sm:px-5"
             >
-              <CalendarHeart size={16} /> Add Engagement or Wedding Date
+              <CalendarHeart size={16} /> <span className="sm:hidden">Add a date</span><span className="hidden sm:inline">Add Engagement or Wedding Date</span>
             </button>
           </div>
         </div>
@@ -114,16 +114,16 @@ export function Countdown({ featured, groomName, brideName, photoUrl }: Countdow
   });
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-maroon px-6 py-9 text-cream sm:px-10 sm:py-10">
+    <div className="relative overflow-hidden rounded-3xl bg-maroon px-5 py-7 text-cream sm:px-10 sm:py-10">
       <ArchMotif />
-      <div className="relative flex flex-col items-center gap-6 text-center sm:flex-row sm:items-center sm:gap-8 sm:text-left">
+      <div className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:items-center sm:gap-8 sm:text-left">
         <Medallion groomName={groomName} brideName={brideName} photoUrl={photoUrl} />
 
         <div className="min-w-0 flex-1">
-          <p className="anim-fade-1 font-body text-sm uppercase tracking-[0.2em] text-peach/90">
+          <p className="anim-fade-1 truncate font-body text-sm uppercase tracking-[0.2em] text-peach/90">
             {groomName || "Groom"} &amp; {brideName || "Bride"}
           </p>
-          <h1 className="anim-fade-2 mt-2 font-display text-3xl text-cream sm:text-4xl">
+          <h1 className="anim-fade-2 mt-2 font-display text-[1.7rem] leading-tight text-cream sm:text-4xl">
             {countdown.isPast ? `${featured.label} Day Has Arrived!` : `Counting Down to Your ${featured.label}`}
           </h1>
           <p className="anim-fade-3 mt-1 font-body text-sm text-cream/80">
