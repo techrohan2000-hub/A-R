@@ -101,6 +101,8 @@ export interface BudgetSummary {
   paid: number;
 }
 
+export type GuestMealPreference = "veg" | "non-veg" | "jain" | "other";
+
 export interface GuestSummary {
   id: string;
   name: string;
@@ -109,7 +111,15 @@ export interface GuestSummary {
   email?: string;
   rsvp: "not-contacted" | "invited" | "maybe" | "confirmed" | "declined";
   accommodationRequired: boolean;
+  relation?: string;
+  partySize?: number;
+  mealPreference?: GuestMealPreference;
+  outstation?: boolean;
+  notes?: string;
 }
+
+export type InvitationLanguage = "en" | "mr" | "both";
+export type InvitationStyle = "warm" | "traditional" | "festive" | "poetic";
 
 export type InvitationChannel = "whatsapp" | "email" | "sms";
 export type InvitationStatus = "draft" | "opened" | "sent";
@@ -136,6 +146,8 @@ export interface ReminderPreferences {
   quietHoursEnabled: boolean;
   invitationSignature: string;
   rsvpText: string;
+  invitationMessageEn: string;
+  invitationMessageMr: string;
 }
 
 export interface NotificationState {

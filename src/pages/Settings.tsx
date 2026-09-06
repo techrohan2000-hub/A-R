@@ -132,6 +132,31 @@ export function Settings() {
             <input className="input mt-1" value={reminderPreferences.invitationSignature} onChange={(event) => setPreferences({ ...reminderPreferences, invitationSignature: event.target.value })} />
           </label>
         </div>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <label className="text-sm text-charcoal-soft">
+            Default English invitation
+            <textarea
+              rows={8}
+              className="input mt-1 resize-y"
+              value={reminderPreferences.invitationMessageEn ?? ""}
+              onChange={(event) => setPreferences({ ...reminderPreferences, invitationMessageEn: event.target.value })}
+              placeholder="Leave blank to use the selected invitation mood."
+            />
+          </label>
+          <label className="text-sm text-charcoal-soft">
+            Default Marathi invitation / मराठी निमंत्रण
+            <textarea
+              rows={8}
+              className="input mt-1 resize-y font-marathi"
+              value={reminderPreferences.invitationMessageMr ?? ""}
+              onChange={(event) => setPreferences({ ...reminderPreferences, invitationMessageMr: event.target.value })}
+              placeholder="मूड निवडल्यावर येणारा मसुदा वापरण्यासाठी रिकामे ठेवा."
+            />
+          </label>
+        </div>
+        <p className="mt-2 text-xs text-charcoal-soft">
+          Use {"{guestName}"}, {"{groomName}"}, {"{brideName}"}, {"{event}"}, {"{dateLine}"} and {"{venueLine}"} so every guest gets a personal message.
+        </p>
         <label className="mt-4 flex items-center gap-2.5 text-sm text-charcoal-soft">
           <input
             type="checkbox"

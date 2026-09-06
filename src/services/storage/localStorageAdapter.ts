@@ -1,4 +1,4 @@
-import type { ReminderPreferences, Wedding, WeddingWorkspace } from "../../types/wedding";
+import type { GuestMealPreference, GuestSummary, ReminderPreferences, Wedding, WeddingWorkspace } from "../../types/wedding";
 import type { StorageAdapter } from "./StorageAdapter";
 
 const STORAGE_KEY = "wedding-planner:workspace:v1";
@@ -18,6 +18,28 @@ export function isLegacySampleWorkspace(value: unknown): boolean {
   return value.wedding.isSampleData === true;
 }
 
+const mealPreferences: GuestMealPreference[] = ["veg", "non-veg", "jain", "other"];
+
+function normalizeGuest(value: unknown): GuestSummary {
+  const guest = isRecord(value) ? value : {};
+  const rsvp = guest.rsvp;
+  const meal = guest.mealPreference;
+  return {
+    id: typeof guest.id === "string" ? guest.id : "guest",
+    name: typeof guest.name === "string" ? guest.name : "",
+    side: guest.side === "bride" || guest.side === "groom" ? guest.side : "both",
+    ...(typeof guest.phone === "string" ? { phone: guest.phone } : {}),
+    ...(typeof guest.email === "string" ? { email: guest.email } : {}),
+    rsvp: rsvp === "invited" || rsvp === "maybe" || rsvp === "confirmed" || rsvp === "declined" ? rsvp : "not-contacted",
+    accommodationRequired: guest.accommodationRequired === true,
+    ...(typeof guest.relation === "string" && guest.relation.trim() ? { relation: guest.relation } : {}),
+    partySize: typeof guest.partySize === "number" && guest.partySize > 0 ? Math.round(guest.partySize) : 1,
+    mealPreference: typeof meal === "string" && mealPreferences.includes(meal as GuestMealPreference) ? meal as GuestMealPreference : "veg",
+    outstation: guest.outstation === true,
+    ...(typeof guest.notes === "string" && guest.notes.trim() ? { notes: guest.notes } : {}),
+  };
+}
+
 export function normalizeWorkspace(workspace: WeddingWorkspace): WeddingWorkspace {
   const now = new Date().toISOString();
   const wedding = workspace.wedding as Partial<Wedding>;
@@ -35,6 +57,8 @@ export function normalizeWorkspace(workspace: WeddingWorkspace): WeddingWorkspac
     quietHoursEnabled: false,
     invitationSignature: "With warm regards, the wedding family",
     rsvpText: "Please let us know if you can join us.",
+    invitationMessageEn: "",
+    invitationMessageMr: "",
   };
   const preferences: Record<string, unknown> = isRecord(saved.reminderPreferences) ? saved.reminderPreferences : {};
 
@@ -79,7 +103,7 @@ export function normalizeWorkspace(workspace: WeddingWorkspace): WeddingWorkspac
     },
     tasks: Array.isArray(workspace.tasks) ? workspace.tasks : [],
     budget: Array.isArray(workspace.budget) ? workspace.budget : [],
-    guests: Array.isArray(workspace.guests) ? workspace.guests : [],
+    guests: Array.isArray(workspace.guests) ? workspace.guests.map(normalizeGuest) : [],
     vendors: Array.isArray(workspace.vendors) ? workspace.vendors : [],
     shopping: Array.isArray(workspace.shopping) ? workspace.shopping : [],
     milestones: Array.isArray(workspace.milestones) ? workspace.milestones : [],
@@ -96,6 +120,8 @@ export function normalizeWorkspace(workspace: WeddingWorkspace): WeddingWorkspac
       quietHoursEnabled: typeof preferences.quietHoursEnabled === "boolean" ? preferences.quietHoursEnabled : preferenceDefaults.quietHoursEnabled,
       invitationSignature: typeof preferences.invitationSignature === "string" ? preferences.invitationSignature : preferenceDefaults.invitationSignature,
       rsvpText: typeof preferences.rsvpText === "string" ? preferences.rsvpText : preferenceDefaults.rsvpText,
+      invitationMessageEn: typeof preferences.invitationMessageEn === "string" ? preferences.invitationMessageEn : "",
+      invitationMessageMr: typeof preferences.invitationMessageMr === "string" ? preferences.invitationMessageMr : "",
     },
     activity: Array.isArray(saved.activity) ? saved.activity : [],
   };

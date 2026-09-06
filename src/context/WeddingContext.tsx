@@ -125,6 +125,8 @@ const emptyWorkspace: WeddingWorkspace = {
     quietHoursEnabled: false,
     invitationSignature: "With warm regards, the wedding family",
     rsvpText: "Please let us know if you can join us.",
+    invitationMessageEn: "",
+    invitationMessageMr: "",
   },
   activity: [],
 };

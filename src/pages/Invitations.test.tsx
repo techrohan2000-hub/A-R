@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { WeddingWorkspace } from "../types/wedding";
 import { Invitations } from "./Invitations";
@@ -37,26 +37,49 @@ const workspace: WeddingWorkspace = {
     quietHoursEnabled: false,
     invitationSignature: "The family",
     rsvpText: "Please RSVP.",
+    invitationMessageEn: "",
+    invitationMessageMr: "",
   },
   activity: [],
 };
 
 vi.mock("../hooks/useWedding", () => ({
-  useWedding: () => ({ workspace, addInvitation: mocks.addInvitation }),
+  useWedding: () => ({ workspace, addInvitation: mocks.addInvitation, saveReminderPreferences: vi.fn() }),
 }));
 
 describe("Invitations page", () => {
   beforeEach(() => {
+    cleanup();
     mocks.addInvitation.mockReset();
     vi.spyOn(window, "open").mockImplementation(() => null);
   });
 
   it("personalizes and opens a free WhatsApp invitation", async () => {
     render(<Invitations />);
-    fireEvent.click(screen.getByRole("checkbox"));
-    expect(screen.getByText(/Dear Joshi Family/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select Joshi Family" }));
+    expect(screen.getAllByText(/Dear Joshi Family/).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: "Open WhatsApp" }));
     expect(window.open).toHaveBeenCalledWith(expect.stringContaining("wa.me/919876543210"), "_blank", "noopener,noreferrer");
     expect(mocks.addInvitation).toHaveBeenCalledWith(expect.objectContaining({ guestId: "g1", eventId: "e1", channel: "whatsapp", status: "opened" }));
+  });
+
+  it("sends an edited English default invitation to every selected guest", async () => {
+    render(<Invitations />);
+    fireEvent.change(screen.getByRole("textbox", { name: "English invitation" }), {
+      target: { value: "Dear {guestName}, please come to our wedding." },
+    });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select Joshi Family" }));
+    expect(screen.getByText(/Dear Joshi Family, please come to our wedding/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Open WhatsApp" }));
+    expect(window.open).toHaveBeenCalledWith(expect.stringContaining(encodeURIComponent("Dear Joshi Family, please come to our wedding.")), "_blank", "noopener,noreferrer");
+  });
+
+  it("offers English and Marathi invitation options plus a card image send", () => {
+    render(<Invitations />);
+    fireEvent.click(screen.getByRole("button", { name: "Language: मराठी" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select Joshi Family" }));
+    expect(screen.getAllByText(/प्रिय Joshi Family/).length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: "WhatsApp with card" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Download card" })).toBeTruthy();
   });
 });

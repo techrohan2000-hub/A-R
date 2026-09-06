@@ -34,6 +34,8 @@ const workspace: WeddingWorkspace = {
     quietHoursEnabled: false,
     invitationSignature: "The family",
     rsvpText: "Please RSVP.",
+    invitationMessageEn: "",
+    invitationMessageMr: "",
   },
   activity: [],
 };
@@ -58,6 +60,55 @@ describe("invitation helpers", () => {
     });
     expect(message).toContain("Dear Joshi Family");
     expect(message).toContain("Venue: Main Hall, Pune");
+  });
+
+  it("builds a Marathi invitation and a bilingual card-ready message", () => {
+    const marathi = buildInvitationMessage({
+      guestName: "Joshi Family",
+      groomName: "Rohan",
+      brideName: "Asha",
+      event: workspace.wedding.events[0],
+      defaultVenue: "Main Hall",
+      city: "Pune",
+      rsvpText: "Please RSVP.",
+      signature: "The family",
+      language: "mr",
+      style: "traditional",
+    });
+    expect(marathi).toContain("प्रिय Joshi Family");
+    expect(marathi).toContain("शुभ विवाह निमंत्रण");
+    expect(marathi).toContain("स्थळ: Main Hall, Pune");
+
+    const both = buildInvitationMessage({
+      guestName: "Joshi Family",
+      groomName: "Rohan",
+      brideName: "Asha",
+      event: workspace.wedding.events[0],
+      defaultVenue: "Main Hall",
+      city: "Pune",
+      rsvpText: "Please RSVP.",
+      signature: "The family",
+      language: "both",
+      style: "festive",
+    });
+    expect(both).toContain("You're invited");
+    expect(both).toContain("शुभ निमंत्रण");
+  });
+
+  it("fills an edited default template for every guest name", () => {
+    const message = buildInvitationMessage({
+      guestName: "Joshi Family",
+      groomName: "Rohan",
+      brideName: "Asha",
+      event: workspace.wedding.events[0],
+      defaultVenue: "Main Hall",
+      city: "Pune",
+      rsvpText: "Please RSVP.",
+      signature: "The family",
+      language: "en",
+      customTemplateEn: "Dear {guestName},\nJoin {groomName} & {brideName} for {event}.",
+    });
+    expect(message).toBe("Dear Joshi Family,\nJoin Rohan & Asha for Wedding.");
   });
 });
 

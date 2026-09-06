@@ -19,6 +19,7 @@ import { InsightsList } from "../components/dashboard/InsightsList";
 import { Card } from "../components/common/Card";
 import { formatINR } from "../utils/formatters";
 import { daysUntil, dueLabel, formatPrettyDate } from "../utils/dateUtils";
+import { sumHeadcount } from "../utils/guests";
 
 export function Dashboard() {
   const { workspace } = useWedding();
@@ -36,7 +37,7 @@ export function Dashboard() {
     const remaining = Math.max(totalBudget - spent, 0);
     const pendingPayments = budget.reduce((sum, b) => sum + Math.max(b.estimated - b.paid, 0), 0);
 
-    const confirmedGuests = guests.filter((g) => g.rsvp === "confirmed").length;
+    const confirmedGuests = sumHeadcount(guests.filter((g) => g.rsvp === "confirmed"));
     const pendingRsvps = guests.filter((g) => g.rsvp === "invited" || g.rsvp === "not-contacted" || g.rsvp === "maybe").length;
 
     const vendorsBooked = vendors.filter((v) => v.status === "booked" || v.status === "completed").length;
@@ -61,7 +62,7 @@ export function Dashboard() {
       spent,
       remaining,
       pendingPayments,
-      guestCount: guests.length,
+      guestCount: sumHeadcount(guests),
       confirmedGuests,
       pendingRsvps,
       vendorsBooked,
