@@ -9,7 +9,8 @@ import { Modal } from "../components/common/Modal";
 import { ConfirmDialog } from "../components/common/ConfirmDialog";
 import { Field } from "../components/common/Field";
 import { ProgressBar } from "../components/common/ProgressBar";
-import { guestHeadcount, guestInitials, mealLabels, sideAccent, sumHeadcount } from "../utils/guests";
+import { guestHeadcount, guestInitials, sideAccent, sumHeadcount } from "../utils/guests";
+import { useI18n } from "../hooks/useI18n";
 
 type FormState = Omit<GuestSummary, "id">;
 
@@ -35,19 +36,23 @@ const rsvpStyles: Record<GuestSummary["rsvp"], string> = {
   declined: "bg-[#f6dede] text-[#a13030]",
 };
 
-const rsvpLabels: Record<GuestSummary["rsvp"], string> = {
-  "not-contacted": "Not contacted",
-  invited: "Invited",
-  maybe: "Maybe",
-  confirmed: "Confirmed",
-  declined: "Declined",
-};
-
-const sideLabels: Record<FamilySide, string> = { bride: "Bride Side", groom: "Groom Side", both: "Both Sides" };
-const sideLabelsMr: Record<FamilySide, string> = { bride: "वधू पक्ष", groom: "वर पक्ष", both: "दोन्ही पक्ष" };
-
 export function Guests() {
   const { workspace, addGuest, updateGuest, deleteGuest } = useWedding();
+  const { t } = useI18n();
+  const rsvpLabels: Record<GuestSummary["rsvp"], string> = {
+    "not-contacted": t("guests.rsvpNotContacted"),
+    invited: t("guests.rsvpInvited"),
+    maybe: t("guests.rsvpMaybe"),
+    confirmed: t("guests.rsvpConfirmed"),
+    declined: t("guests.rsvpDeclined"),
+  };
+  const sideLabels: Record<FamilySide, string> = { bride: t("guests.brideSide"), groom: t("guests.groomSide"), both: t("guests.bothSides") };
+  const mealLabels: Record<GuestMealPreference, string> = {
+    veg: t("guests.mealVeg"),
+    "non-veg": t("guests.mealNonVeg"),
+    jain: t("guests.mealJain"),
+    other: t("guests.mealOther"),
+  };
   const [editing, setEditing] = useState<GuestSummary | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -141,39 +146,35 @@ export function Guests() {
   return (
     <div className="space-y-5">
       <section className="overflow-hidden rounded-3xl border border-gold-soft/70 bg-gradient-to-br from-white via-cream-soft to-peach/35 p-5 sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">The people who make it a celebration</p>
-        <h2 className="mt-1 text-xl text-maroon-deep sm:text-2xl">Guest circle</h2>
-        <p className="mt-2 max-w-2xl text-sm text-charcoal-soft">
-          Track families, plus-ones, meals, travel and RSVPs in one warm list — not a spreadsheet.
-        </p>
-        <p className="mt-1 font-marathi text-sm text-maroon">कुटुंबे, जेवण, प्रवास आणि होकार — सगळं एका सुंदर यादीत.</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">{t("guests.kicker")}</p>
+        <h2 className="mt-1 text-xl text-maroon-deep sm:text-2xl">{t("guests.title")}</h2>
+        <p className="mt-2 max-w-2xl text-sm text-charcoal-soft">{t("guests.intro")}</p>
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {[
-            { label: "People", mr: "माणसे", value: stats.people },
-            { label: "Families", mr: "कुटुंबे", value: stats.households },
-            { label: "Coming", mr: "येणार", value: stats.confirmedPeople },
-            { label: "Awaiting", mr: "उत्तर बाकी", value: stats.awaitingHouseholds },
-            { label: "From afar", mr: "बाहेरगाव", value: stats.outstation },
-            { label: "Need stay", mr: "निवास", value: stats.stay },
+            { label: t("guests.people"), value: stats.people },
+            { label: t("guests.families"), value: stats.households },
+            { label: t("guests.coming"), value: stats.confirmedPeople },
+            { label: t("guests.awaiting"), value: stats.awaitingHouseholds },
+            { label: t("guests.fromAfar"), value: stats.outstation },
+            { label: t("guests.needStay"), value: stats.stay },
           ].map((item) => (
             <div key={item.label} className="rounded-2xl bg-white/70 px-3 py-3 text-center shadow-[0_8px_20px_-16px_rgba(74,20,32,0.45)]">
               <p className="font-data text-2xl font-semibold text-maroon-deep">{item.value}</p>
               <p className="text-[11px] font-medium text-charcoal">{item.label}</p>
-              <p className="font-marathi text-[11px] text-gold">{item.mr}</p>
             </div>
           ))}
         </div>
         {stats.expected > 0 && (
           <div className="mt-4">
-            <ProgressBar value={stats.fill} label={`${stats.people} of ${stats.expected} expected guests`} />
+            <ProgressBar value={stats.fill} label={t("guests.expected", { people: stats.people, expected: stats.expected })} />
           </div>
         )}
         {stats.people > 0 && (
           <div className="mt-4">
             <div className="mb-1.5 flex justify-between text-[11px] text-charcoal-soft">
-              <span>Bride side · {stats.bride}</span>
-              <span>Both · {stats.both}</span>
-              <span>Groom side · {stats.groom}</span>
+              <span>{t("guests.brideSide")} · {stats.bride}</span>
+              <span>{t("guests.both")} · {stats.both}</span>
+              <span>{t("guests.groomSide")} · {stats.groom}</span>
             </div>
             <div className="flex h-2.5 overflow-hidden rounded-full bg-beige">
               <div className="bg-maroon" style={{ width: `${(stats.bride / sideTotal) * 100}%` }} />
@@ -194,7 +195,7 @@ export function Guests() {
                 filter === f ? "bg-maroon text-cream" : "bg-cream-soft text-charcoal-soft hover:bg-peach/40"
               }`}
             >
-              {f === "all" ? "All Guests" : sideLabels[f]}
+              {f === "all" ? t("guests.allGuests") : sideLabels[f]}
             </button>
           ))}
         </div>
@@ -205,18 +206,18 @@ export function Guests() {
               className="input py-2 pl-9 text-sm"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search name, relation..."
+              placeholder={t("guests.search")}
             />
           </label>
           <select className="input min-w-0 flex-1 py-2 text-sm sm:flex-none sm:text-xs" value={rsvpFilter} onChange={(event) => setRsvpFilter(event.target.value as typeof rsvpFilter)}>
-            <option value="all">All RSVP states</option>
+            <option value="all">{t("guests.allRsvp")}</option>
             {Object.entries(rsvpLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
           <button
             onClick={openAdd}
             className="flex shrink-0 items-center gap-1.5 rounded-full bg-maroon px-4 py-2 text-sm font-medium text-cream transition hover:bg-maroon-deep"
           >
-            <Plus size={16} /> Add Guest
+            <Plus size={16} /> {t("guests.addGuest")}
           </button>
         </div>
       </div>
@@ -224,9 +225,9 @@ export function Guests() {
       {guests.length === 0 ? (
         <EmptyState
           icon={Users}
-          title={workspace.guests.length ? "No guests match this view" : "Your circle is waiting"}
-          description={workspace.guests.length ? "Try another filter or search." : "Add families, plus-ones, meals and who is travelling — then send invitations that feel personal."}
-          actionLabel={workspace.guests.length ? undefined : "+ Add First Guest"}
+          title={workspace.guests.length ? t("guests.emptyFilterTitle") : t("guests.emptyTitle")}
+          description={workspace.guests.length ? t("guests.emptyFilterBody") : t("guests.emptyBody")}
+          actionLabel={workspace.guests.length ? undefined : t("guests.firstGuest")}
           onAction={workspace.guests.length ? undefined : openAdd}
         />
       ) : (
@@ -234,8 +235,8 @@ export function Guests() {
           {grouped.map((group) => (
             <section key={group.side}>
               <div className="mb-2 flex items-baseline justify-between">
-                <h3 className="text-lg text-maroon-deep">{sideLabels[group.side]} <span className="font-marathi text-sm text-gold">{sideLabelsMr[group.side]}</span></h3>
-                <p className="text-xs text-charcoal-soft">{sumHeadcount(group.guests)} people · {group.guests.length === 1 ? "1 family" : `${group.guests.length} families`}</p>
+                <h3 className="text-lg text-maroon-deep">{sideLabels[group.side]}</h3>
+                <p className="text-xs text-charcoal-soft">{t("guests.peopleCount", { count: sumHeadcount(group.guests), families: group.guests.length === 1 ? t("guests.oneFamily") : t("guests.manyFamilies", { count: group.guests.length }) })}</p>
               </div>
               <div className="stagger-fade space-y-3">
                 {group.guests.map((guest) => (
@@ -261,7 +262,7 @@ export function Guests() {
                         </div>
                         <p className="mt-1 text-sm text-charcoal-soft">
                           {guest.relation ? `${guest.relation} · ` : ""}
-                          {guestHeadcount(guest) === 1 ? "1 guest" : `${guestHeadcount(guest)} guests`}
+                          {guestHeadcount(guest) === 1 ? t("guests.oneGuest") : t("guests.manyGuests", { count: guestHeadcount(guest) })}
                         </p>
                         <div className="mt-2 flex flex-wrap gap-1.5">
                           <span className="inline-flex items-center gap-1 rounded-full bg-cream-soft px-2 py-0.5 text-[11px] text-charcoal-soft">
@@ -269,12 +270,12 @@ export function Guests() {
                           </span>
                           {guest.outstation && (
                             <span className="inline-flex items-center gap-1 rounded-full bg-peach/50 px-2 py-0.5 text-[11px] text-maroon">
-                              <MapPinned size={11} /> Outstation
+                              <MapPinned size={11} /> {t("guests.outstation")}
                             </span>
                           )}
                           {guest.accommodationRequired && (
                             <span className="inline-flex items-center gap-1 rounded-full bg-peach/50 px-2 py-0.5 text-[11px] text-maroon">
-                              <BedDouble size={11} /> Stay needed
+                              <BedDouble size={11} /> {t("guests.stayNeeded")}
                             </span>
                           )}
                         </div>
@@ -314,40 +315,40 @@ export function Guests() {
       )}
 
       {(isAdding || editing) && (
-        <Modal title={editing ? "Edit Guest" : "Add Guest"} onClose={closeModal}>
+        <Modal title={editing ? t("guests.editGuest") : t("guests.addGuest")} onClose={closeModal}>
           <div className="space-y-4">
-            <Field label="Guest / Family Name">
+            <Field label={t("guests.name")}>
               <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Relation">
-                <input className="input" value={form.relation || ""} onChange={(e) => setForm({ ...form, relation: e.target.value })} placeholder="Mama, college friend, neighbour" />
+              <Field label={t("guests.relation")}>
+                <input className="input" value={form.relation || ""} onChange={(e) => setForm({ ...form, relation: e.target.value })} placeholder={t("guests.relationPlaceholder")} />
               </Field>
-              <Field label="People in this group">
+              <Field label={t("guests.partySize")}>
                 <input type="number" min={1} max={30} className="input" value={form.partySize ?? 1} onChange={(e) => setForm({ ...form, partySize: Math.max(1, Number(e.target.value) || 1) })} />
               </Field>
             </div>
-            <Field label="Side">
+            <Field label={t("guests.side")}>
               <select
                 className="input"
                 value={form.side}
                 onChange={(e) => setForm({ ...form, side: e.target.value as FamilySide })}
               >
-                <option value="bride">Bride Side</option>
-                <option value="groom">Groom Side</option>
-                <option value="both">Both Sides</option>
+                <option value="bride">{t("guests.brideSide")}</option>
+                <option value="groom">{t("guests.groomSide")}</option>
+                <option value="both">{t("guests.bothSides")}</option>
               </select>
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Phone (with country code)">
+              <Field label={t("guests.phone")}>
                 <input type="tel" className="input" value={form.phone || ""} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+91 98765 43210" />
               </Field>
-              <Field label="Email">
+              <Field label={t("guests.email")}>
                 <input type="email" className="input" value={form.email || ""} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="family@example.com" />
               </Field>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="RSVP Status">
+              <Field label={t("guests.rsvp")}>
                 <select
                   className="input"
                   value={form.rsvp}
@@ -360,7 +361,7 @@ export function Guests() {
                   ))}
                 </select>
               </Field>
-              <Field label="Meal">
+              <Field label={t("guests.meal")}>
                 <select
                   className="input"
                   value={form.mealPreference ?? "veg"}
@@ -372,8 +373,8 @@ export function Guests() {
                 </select>
               </Field>
             </div>
-            <Field label="A little note">
-              <textarea rows={2} className="input resize-none" value={form.notes || ""} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Loves the lagna geet, travelling with kids, seating with cousins..." />
+            <Field label={t("guests.note")}>
+              <textarea rows={2} className="input resize-none" value={form.notes || ""} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder={t("guests.notePlaceholder")} />
             </Field>
             <label className="flex items-center gap-2.5 text-sm">
               <input
@@ -382,7 +383,7 @@ export function Guests() {
                 onChange={(e) => setForm({ ...form, outstation: e.target.checked })}
                 className="h-4 w-4 rounded border-beige accent-maroon"
               />
-              <span className="text-charcoal-soft">Coming from out of town</span>
+              <span className="text-charcoal-soft">{t("guests.fromTown")}</span>
             </label>
             <label className="flex items-center gap-2.5 text-sm">
               <input
@@ -391,14 +392,14 @@ export function Guests() {
                 onChange={(e) => setForm({ ...form, accommodationRequired: e.target.checked })}
                 className="h-4 w-4 rounded border-beige accent-maroon"
               />
-              <span className="text-charcoal-soft">Needs accommodation</span>
+              <span className="text-charcoal-soft">{t("guests.needsStay")}</span>
             </label>
             <button
               onClick={handleSubmit}
               disabled={!form.name.trim()}
               className="w-full rounded-full bg-maroon py-2.5 text-sm font-medium text-cream transition hover:bg-maroon-deep disabled:opacity-50"
             >
-              {editing ? "Save Changes" : "Add Guest"}
+              {editing ? t("common.saveChanges") : t("guests.addGuest")}
             </button>
           </div>
         </Modal>
@@ -406,8 +407,8 @@ export function Guests() {
 
       {deleteId && (
         <ConfirmDialog
-          title="Delete this guest?"
-          description="This can't be undone."
+          title={t("guests.deleteTitle")}
+          description={t("common.cannotUndo")}
           onCancel={() => setDeleteId(null)}
           onConfirm={async () => {
             await deleteGuest(deleteId);

@@ -32,6 +32,11 @@ html, body {
   overscroll-behavior-x: none;
 }
 
+html.lang-mr,
+html.lang-mr body {
+  font-family: var(--font-marathi), var(--font-body);
+}
+
 body {
   background-color: var(--color-cream);
   background-image:

@@ -3,12 +3,14 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, Plus } from "lucide-react";
 import { navItems, primaryMobilePaths } from "../../routes/navConfig";
 import { useLockBodyScroll } from "../../hooks/useLockBodyScroll";
+import { useI18n } from "../../hooks/useI18n";
 
 export function BottomNav() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { t, labelFor } = useI18n();
 
   const primary = primaryMobilePaths
     .map((path) => navItems.find((item) => item.path === path))
@@ -21,14 +23,14 @@ export function BottomNav() {
   useLockBodyScroll(moreOpen || addOpen);
 
   const quickAddTargets: { label: string; path: string }[] = [
-    { label: "Task", path: "/tasks" },
-    { label: "Guest", path: "/guests" },
-    { label: "Expense", path: "/budget" },
-    { label: "Shopping Item", path: "/shopping" },
-    { label: "Vendor", path: "/vendors" },
-    { label: "Event", path: "/events-rituals" },
-    { label: "Milestone", path: "/timeline" },
-    { label: "Note", path: "/notes" },
+    { label: t("nav.addTask"), path: "/tasks" },
+    { label: t("nav.addGuest"), path: "/guests" },
+    { label: t("nav.addExpense"), path: "/budget" },
+    { label: t("nav.addShopping"), path: "/shopping" },
+    { label: t("nav.addVendor"), path: "/vendors" },
+    { label: t("nav.addEvent"), path: "/events-rituals" },
+    { label: t("nav.addMilestone"), path: "/timeline" },
+    { label: t("nav.addNote"), path: "/notes" },
   ];
 
   return (
@@ -36,7 +38,7 @@ export function BottomNav() {
       {!moreOpen && !addOpen && (
         <button
           onClick={() => setAddOpen(true)}
-          aria-label="Quick add"
+          aria-label={t("nav.quickAdd")}
           className="fixed z-40 flex items-center justify-center rounded-full bg-maroon text-cream shadow-lg shadow-maroon/30 lg:hidden"
           style={{
             height: "3.25rem",
@@ -54,7 +56,7 @@ export function BottomNav() {
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <ul className="grid grid-cols-5">
-          {primary.map(({ path, label, icon: Icon }) => (
+          {primary.map(({ path, icon: Icon }) => (
             <li key={path}>
               <NavLink
                 to={path}
@@ -66,7 +68,7 @@ export function BottomNav() {
                 }
               >
                 <Icon size={20} strokeWidth={1.75} />
-                <span className="truncate px-0.5">{label}</span>
+                <span className="truncate px-0.5">{labelFor(path)}</span>
               </NavLink>
             </li>
           ))}
@@ -78,14 +80,14 @@ export function BottomNav() {
               }`}
             >
               <Menu size={20} strokeWidth={1.75} />
-              <span>More</span>
+              <span>{t("common.more")}</span>
             </button>
           </li>
         </ul>
       </nav>
 
       {moreOpen && (
-        <div className="fixed inset-0 z-50 flex items-end lg:hidden" role="dialog" aria-modal="true" aria-label="All sections">
+        <div className="fixed inset-0 z-50 flex items-end lg:hidden" role="dialog" aria-modal="true" aria-label={t("nav.allSections")}>
           <div className="absolute inset-0 bg-charcoal/40" onClick={() => setMoreOpen(false)} />
           <div
             className="anim-sheet relative max-h-[80dvh] w-full overflow-y-auto overscroll-contain rounded-t-3xl bg-cream p-5"
@@ -93,13 +95,13 @@ export function BottomNav() {
           >
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-beige" />
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg text-maroon-deep">All Sections</h3>
-              <button onClick={() => setMoreOpen(false)} aria-label="Close" className="rounded-full p-2 text-charcoal-soft">
+              <h3 className="text-lg text-maroon-deep">{t("nav.allSections")}</h3>
+              <button onClick={() => setMoreOpen(false)} aria-label={t("common.close")} className="rounded-full p-2 text-charcoal-soft">
                 <X size={20} />
               </button>
             </div>
             <div className="grid grid-cols-3 gap-2.5">
-              {navItems.map(({ path, label, icon: Icon }) => (
+              {navItems.map(({ path, icon: Icon }) => (
                 <button
                   key={path}
                   onClick={() => {
@@ -113,7 +115,7 @@ export function BottomNav() {
                   }`}
                 >
                   <Icon size={20} className="text-maroon" strokeWidth={1.75} />
-                  <span className="text-[11px] font-medium leading-tight text-charcoal-soft">{label}</span>
+                  <span className="text-[11px] font-medium leading-tight text-charcoal-soft">{labelFor(path)}</span>
                 </button>
               ))}
             </div>
@@ -122,7 +124,7 @@ export function BottomNav() {
       )}
 
       {addOpen && (
-        <div className="fixed inset-0 z-50 flex items-end lg:hidden" role="dialog" aria-modal="true" aria-label="Quick add">
+        <div className="fixed inset-0 z-50 flex items-end lg:hidden" role="dialog" aria-modal="true" aria-label={t("nav.quickAdd")}>
           <div className="absolute inset-0 bg-charcoal/40" onClick={() => setAddOpen(false)} />
           <div
             className="anim-sheet relative w-full rounded-t-3xl bg-cream p-5"
@@ -130,8 +132,8 @@ export function BottomNav() {
           >
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-beige" />
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg text-maroon-deep">Quick Add</h3>
-              <button onClick={() => setAddOpen(false)} aria-label="Close" className="rounded-full p-2 text-charcoal-soft">
+              <h3 className="text-lg text-maroon-deep">{t("nav.quickAddTitle")}</h3>
+              <button onClick={() => setAddOpen(false)} aria-label={t("common.close")} className="rounded-full p-2 text-charcoal-soft">
                 <X size={20} />
               </button>
             </div>

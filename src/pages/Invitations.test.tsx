@@ -15,6 +15,7 @@ const workspace: WeddingWorkspace = {
     events: [{ id: "e1", name: "Wedding", date: "2026-09-20", enabled: true }],
     family: [],
     onboardingComplete: true,
+    uiLanguage: "en",
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
   },
@@ -44,13 +45,14 @@ const workspace: WeddingWorkspace = {
 };
 
 vi.mock("../hooks/useWedding", () => ({
-  useWedding: () => ({ workspace, addInvitation: mocks.addInvitation, saveReminderPreferences: vi.fn() }),
+  useWedding: () => ({ workspace, addInvitation: mocks.addInvitation, saveReminderPreferences: vi.fn(), saveWedding: vi.fn() }),
 }));
 
 describe("Invitations page", () => {
   beforeEach(() => {
     cleanup();
     mocks.addInvitation.mockReset();
+    workspace.wedding.uiLanguage = "en";
     vi.spyOn(window, "open").mockImplementation(() => null);
   });
 
@@ -74,17 +76,26 @@ describe("Invitations page", () => {
     expect(window.open).toHaveBeenCalledWith(expect.stringContaining(encodeURIComponent("Dear Joshi Family, please come to our wedding.")), "_blank", "noopener,noreferrer");
   });
 
-  it("offers English and Marathi invitation options plus a card image send", () => {
+  it("uses the site language for invitation wording and a card image send", () => {
+    workspace.wedding.uiLanguage = "mr";
     render(<Invitations />);
     expect(screen.queryByRole("button", { name: "Language: Both" })).toBeNull();
-    expect(screen.getByRole("textbox", { name: "English invitation" })).toBeTruthy();
-    expect(screen.queryByRole("textbox", { name: "Marathi invitation" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Language: मराठी" }));
     expect(screen.getByRole("textbox", { name: "Marathi invitation" })).toBeTruthy();
     expect(screen.queryByRole("textbox", { name: "English invitation" })).toBeNull();
     fireEvent.click(screen.getByRole("checkbox", { name: "Select Joshi Family" }));
     expect(screen.getAllByText(/प्रिय Joshi Family/).length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: "WhatsApp with card" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Download card" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "WhatsApp कार्डासह" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "कार्ड डाउनलोड करा" })).toBeTruthy();
+  });
+
+  it("lets a guest message be edited before sending", () => {
+    render(<Invitations />);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select Joshi Family" }));
+    fireEvent.click(screen.getByRole("button", { name: "Edit message" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Invitation for Joshi Family" }), {
+      target: { value: "Dear Joshi Family, this note is only for you." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Open WhatsApp" }));
+    expect(window.open).toHaveBeenCalledWith(expect.stringContaining(encodeURIComponent("Dear Joshi Family, this note is only for you.")), "_blank", "noopener,noreferrer");
   });
 });

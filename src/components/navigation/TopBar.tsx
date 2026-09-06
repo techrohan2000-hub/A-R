@@ -3,17 +3,23 @@ import { Search, Sparkles, X } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { navItems } from "../../routes/navConfig";
 import { NotificationCenter } from "../notifications/NotificationCenter";
+import { LanguageSwitcher } from "../common/LanguageSwitcher";
+import { useI18n } from "../../hooks/useI18n";
 
 export function TopBar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t, labelFor } = useI18n();
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const current = navItems.find((item) =>
     item.path === "/" ? location.pathname === "/" : location.pathname.startsWith(item.path)
   );
   const goToMatch = () => {
-    const match = navItems.find((item) => item.label.toLowerCase().includes(query.trim().toLowerCase()));
+    const needle = query.trim().toLowerCase();
+    const match = navItems.find((item) =>
+      item.label.toLowerCase().includes(needle) || labelFor(item.path).toLowerCase().includes(needle)
+    );
     if (!match) return;
     navigate(match.path);
     setQuery("");
@@ -39,7 +45,7 @@ export function TopBar() {
                 if (event.key === "Enter") goToMatch();
                 if (event.key === "Escape") setSearchOpen(false);
               }}
-              placeholder="Go to a section…"
+              placeholder={t("common.searchShort")}
               className="w-full bg-transparent text-base text-charcoal outline-none placeholder:text-charcoal-soft/60 sm:text-sm"
             />
           </label>
@@ -47,9 +53,9 @@ export function TopBar() {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <Sparkles size={14} className="text-gold" />
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold">Our celebration</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold">{t("common.ourCelebration")}</p>
             </div>
-            <h1 className="truncate text-xl leading-tight text-maroon-deep sm:text-2xl">{current?.label ?? "Wedding Planner"}</h1>
+            <h1 className="truncate text-xl leading-tight text-maroon-deep sm:text-2xl">{current ? labelFor(current.path) : t("common.weddingPlanner")}</h1>
           </div>
         )}
         <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
@@ -60,7 +66,7 @@ export function TopBar() {
                 setSearchOpen(false);
                 setQuery("");
               }}
-              aria-label="Close search"
+              aria-label={t("common.closeSearch")}
               className="rounded-full border border-beige bg-white/80 p-2.5 text-charcoal-soft sm:hidden"
             >
               <X size={18} />
@@ -69,7 +75,7 @@ export function TopBar() {
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              aria-label="Search planner sections"
+              aria-label={t("common.searchSections")}
               className="rounded-full border border-beige bg-white/80 p-2.5 text-maroon sm:hidden"
             >
               <Search size={18} />
@@ -85,13 +91,14 @@ export function TopBar() {
               onKeyDown={(event) => {
                 if (event.key === "Enter") goToMatch();
               }}
-              placeholder="Go to a planner section…"
+              placeholder={t("common.search")}
               className="w-full bg-transparent text-sm text-charcoal outline-none placeholder:text-charcoal-soft/60"
             />
           </label>
           <datalist id="planner-sections">
-            {navItems.map((item) => <option key={item.path} value={item.label} />)}
+            {navItems.map((item) => <option key={item.path} value={labelFor(item.path)} />)}
           </datalist>
+          <LanguageSwitcher compact />
           <NotificationCenter />
         </div>
       </div>

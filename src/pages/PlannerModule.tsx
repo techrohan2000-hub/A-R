@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { CalendarDays, IndianRupee, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useWedding } from "../hooks/useWedding";
+import { useI18n } from "../hooks/useI18n";
 import { navItems } from "../routes/navConfig";
 import type { PlannerItem } from "../types/wedding";
 import { Card } from "../components/common/Card";
@@ -61,6 +62,8 @@ export function PlannerModule() {
   const navItem = navItems.find((item) => item.path === location.pathname);
   const Icon = navItem?.icon ?? CalendarDays;
   const { workspace, addPlannerItem, updatePlannerItem, deletePlannerItem } = useWedding();
+  const { labelFor } = useI18n();
+  const sectionTitle = navItem ? labelFor(navItem.path) : "";
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("All");
   const [form, setForm] = useState<FormState>(() => emptyForm(section, config));
@@ -118,7 +121,7 @@ export function PlannerModule() {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Wedding planning</p>
-              <h2 className="mt-1 text-xl text-maroon-deep sm:text-2xl">{navItem?.label}</h2>
+              <h2 className="mt-1 text-xl text-maroon-deep sm:text-2xl">{sectionTitle}</h2>
               <p className="mt-1 max-w-xl text-sm text-charcoal-soft">{config.description}</p>
             </div>
           </div>
@@ -150,7 +153,7 @@ export function PlannerModule() {
       <div className="flex flex-col gap-3 rounded-2xl border border-beige bg-white/55 p-3 sm:flex-row">
         <label className="flex flex-1 items-center gap-2 rounded-xl bg-white px-3 py-2">
           <Search size={16} className="text-charcoal-soft" />
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${navItem?.label.toLowerCase()}…`} className="w-full bg-transparent text-base outline-none placeholder:text-charcoal-soft/60 sm:text-sm" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${sectionTitle?.toLowerCase()}…`} className="w-full bg-transparent text-base outline-none placeholder:text-charcoal-soft/60 sm:text-sm" />
         </label>
         <select value={status} onChange={(event) => setStatus(event.target.value)} className="input sm:w-44">
           <option>All</option>
@@ -161,7 +164,7 @@ export function PlannerModule() {
       {items.length === 0 ? (
         <EmptyState
           icon={Icon}
-          title={allItems.length ? "No matching items" : `No ${navItem?.label.toLowerCase()} yet`}
+          title={allItems.length ? "No matching items" : `No ${sectionTitle?.toLowerCase()} yet`}
           description={allItems.length ? "Try a different search or status filter." : config.description}
           actionLabel={allItems.length ? undefined : `Add first ${config.singular.toLowerCase()}`}
           onAction={allItems.length ? undefined : openAdd}

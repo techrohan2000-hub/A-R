@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera } from "lucide-react";
 import { useWedding } from "../hooks/useWedding";
+import { useI18n } from "../hooks/useI18n";
+import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
 import type { Couple, FoodPreference, PlanningPreferences, Tradition, TraditionSetup } from "../types/wedding";
 import { Card } from "../components/common/Card";
 
@@ -55,6 +57,7 @@ async function compressPhoto(file: File): Promise<string> {
 
 export function WeddingSetup() {
   const { workspace, completeOnboarding } = useWedding();
+  const { language } = useI18n();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [photoError, setPhotoError] = useState<string | null>(null);
@@ -116,6 +119,7 @@ export function WeddingSetup() {
       events: base?.events ?? [],
       family: base?.family ?? [],
       onboardingComplete: true,
+      uiLanguage: language,
       createdAt: base?.createdAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
@@ -124,11 +128,14 @@ export function WeddingSetup() {
 
   return (
     <div className="mx-auto min-h-dvh max-w-2xl space-y-6 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-8">
+      <div className="flex items-start justify-between gap-3">
       <div>
             <h1 className="text-2xl text-maroon-deep sm:text-3xl">Wedding Tradition Setup</h1>
         <p className="mt-1 text-sm text-charcoal-soft">
           Tell us the basics. Every ritual and custom stays fully editable later — nothing here is locked in.
         </p>
+      </div>
+        <LanguageSwitcher compact />
       </div>
 
       <div className="flex items-center gap-2">
@@ -281,11 +288,12 @@ export function WeddingSetup() {
                 onChange={(e) => setTradition({ ...tradition, communityNote: e.target.value })}
               />
             </Field>
-            <Field label="Preferred Language">
+            <Field label="Ceremony language notes (optional)">
               <input
                 className="input"
                 value={tradition.language}
                 onChange={(e) => setTradition({ ...tradition, language: e.target.value })}
+                placeholder="Site language is chosen above"
               />
             </Field>
             <Field label="Bride's Family Customs (optional)">

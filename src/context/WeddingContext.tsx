@@ -100,6 +100,7 @@ const emptyWedding: Wedding = {
   events: [],
   family: [],
   onboardingComplete: false,
+  uiLanguage: "en",
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
 };

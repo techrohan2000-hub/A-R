@@ -3,9 +3,11 @@ import { NavLink } from "react-router-dom";
 import { Heart, Sparkles } from "lucide-react";
 import { navItems } from "../../routes/navConfig";
 import { useWedding } from "../../hooks/useWedding";
+import { useI18n } from "../../hooks/useI18n";
 
 export function Sidebar() {
   const { workspace } = useWedding();
+  const { t, labelFor } = useI18n();
   const couple = workspace?.wedding.couple;
 
   return (
@@ -20,7 +22,7 @@ export function Sidebar() {
           <p className="truncate font-display text-lg leading-tight text-maroon-deep">
             {couple ? `${couple.groomName} & ${couple.brideName}` : "Our Wedding"}
           </p>
-          <p className="text-[11px] uppercase tracking-wide text-charcoal-soft">Planner</p>
+          <p className="text-[11px] uppercase tracking-wide text-charcoal-soft">{t("common.planner")}</p>
         </div>
       </div>
 
@@ -28,13 +30,13 @@ export function Sidebar() {
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">
         <ul className="space-y-0.5">
-          {navItems.map(({ path, label, icon: Icon }) => {
+          {navItems.map(({ path, icon: Icon }) => {
             const groupLabel: Record<string, string> = {
-              "/": "Overview",
-              "/guests": "People & invitations",
-              "/shopping": "Details & bookings",
-              "/documents": "Final coordination",
-              "/settings": "Preferences",
+              "/": t("nav.groupOverview"),
+              "/guests": t("nav.groupPeople"),
+              "/shopping": t("nav.groupDetails"),
+              "/documents": t("nav.groupFinal"),
+              "/settings": t("nav.groupPrefs"),
             };
             return (
               <Fragment key={path}>
@@ -56,7 +58,7 @@ export function Sidebar() {
                     }
                   >
                     <Icon size={17} strokeWidth={1.75} />
-                    <span className="truncate">{label}</span>
+                    <span className="truncate">{labelFor(path)}</span>
                   </NavLink>
                 </li>
               </Fragment>

@@ -98,6 +98,7 @@ export function normalizeWorkspace(workspace: WeddingWorkspace): WeddingWorkspac
       events: Array.isArray(wedding.events) ? wedding.events : [],
       family: Array.isArray(wedding.family) ? wedding.family : [],
       onboardingComplete: wedding.onboardingComplete === true,
+      uiLanguage: wedding.uiLanguage === "mr" ? "mr" : "en",
       createdAt: typeof wedding.createdAt === "string" ? wedding.createdAt : now,
       updatedAt: typeof wedding.updatedAt === "string" ? wedding.updatedAt : now,
     },

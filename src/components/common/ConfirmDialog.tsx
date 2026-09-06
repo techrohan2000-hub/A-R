@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef } from "react";
 import { useLockBodyScroll } from "../../hooks/useLockBodyScroll";
+import { useI18n } from "../../hooks/useI18n";
 
 interface ConfirmDialogProps {
   title: string;
@@ -12,10 +13,11 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({
   title,
   description,
-  confirmLabel = "Delete",
+  confirmLabel,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const { t } = useI18n();
   const titleId = useId();
   const descriptionId = useId();
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -48,13 +50,13 @@ export function ConfirmDialog({
         <p id={descriptionId} className="mb-5 text-sm text-charcoal-soft">{description}</p>
         <div className="grid grid-cols-2 gap-3 sm:flex sm:justify-end">
           <button ref={cancelRef} onClick={onCancel} className="min-h-11 rounded-full px-4 py-2.5 text-sm font-medium text-charcoal-soft">
-            Cancel
+            {t("common.cancel")}
           </button>
           <button
             onClick={onConfirm}
             className="min-h-11 rounded-full bg-[#c85a5a] px-4 py-2.5 text-sm font-medium text-white"
           >
-            {confirmLabel}
+            {confirmLabel ?? t("common.delete")}
           </button>
         </div>
       </div>

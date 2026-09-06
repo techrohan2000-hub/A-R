@@ -68,6 +68,8 @@ export interface PlanningPreferences {
   engagementDate?: string;
 }
 
+export type AppLanguage = "en" | "mr";
+
 export interface Wedding {
   id: string;
   couple: Couple;
@@ -76,6 +78,7 @@ export interface Wedding {
   events: WeddingEventSummary[];
   family: FamilyMember[];
   onboardingComplete: boolean;
+  uiLanguage?: AppLanguage;
   createdAt: string;
   updatedAt: string;
 }
@@ -118,7 +121,7 @@ export interface GuestSummary {
   notes?: string;
 }
 
-export type InvitationLanguage = "en" | "mr";
+export type InvitationLanguage = AppLanguage;
 export type InvitationStyle = "warm" | "traditional" | "festive" | "poetic";
 
 export type InvitationChannel = "whatsapp" | "email" | "sms";
