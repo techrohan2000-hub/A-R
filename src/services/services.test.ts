@@ -62,7 +62,7 @@ describe("invitation helpers", () => {
     expect(message).toContain("Venue: Main Hall, Pune");
   });
 
-  it("builds a Marathi invitation and a bilingual card-ready message", () => {
+  it("builds a Marathi invitation without mixing English", () => {
     const marathi = buildInvitationMessage({
       guestName: "Joshi Family",
       groomName: "Rohan",
@@ -78,21 +78,7 @@ describe("invitation helpers", () => {
     expect(marathi).toContain("प्रिय Joshi Family");
     expect(marathi).toContain("शुभ विवाह निमंत्रण");
     expect(marathi).toContain("स्थळ: Main Hall, Pune");
-
-    const both = buildInvitationMessage({
-      guestName: "Joshi Family",
-      groomName: "Rohan",
-      brideName: "Asha",
-      event: workspace.wedding.events[0],
-      defaultVenue: "Main Hall",
-      city: "Pune",
-      rsvpText: "Please RSVP.",
-      signature: "The family",
-      language: "both",
-      style: "festive",
-    });
-    expect(both).toContain("You're invited");
-    expect(both).toContain("शुभ निमंत्रण");
+    expect(marathi).not.toContain("You're invited");
   });
 
   it("fills an edited default template for every guest name", () => {

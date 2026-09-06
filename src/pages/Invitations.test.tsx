@@ -76,7 +76,12 @@ describe("Invitations page", () => {
 
   it("offers English and Marathi invitation options plus a card image send", () => {
     render(<Invitations />);
+    expect(screen.queryByRole("button", { name: "Language: Both" })).toBeNull();
+    expect(screen.getByRole("textbox", { name: "English invitation" })).toBeTruthy();
+    expect(screen.queryByRole("textbox", { name: "Marathi invitation" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Language: मराठी" }));
+    expect(screen.getByRole("textbox", { name: "Marathi invitation" })).toBeTruthy();
+    expect(screen.queryByRole("textbox", { name: "English invitation" })).toBeNull();
     fireEvent.click(screen.getByRole("checkbox", { name: "Select Joshi Family" }));
     expect(screen.getAllByText(/प्रिय Joshi Family/).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "WhatsApp with card" })).toBeTruthy();

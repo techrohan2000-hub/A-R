@@ -118,7 +118,7 @@ export interface GuestSummary {
   notes?: string;
 }
 
-export type InvitationLanguage = "en" | "mr" | "both";
+export type InvitationLanguage = "en" | "mr";
 export type InvitationStyle = "warm" | "traditional" | "festive" | "poetic";
 
 export type InvitationChannel = "whatsapp" | "email" | "sms";

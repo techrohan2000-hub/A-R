@@ -147,9 +147,7 @@ export function buildInvitationMessage(input: InvitationTemplateInput) {
   const vars = invitationVars(input);
   const en = fillInvitationTemplate(input.customTemplateEn?.trim() || defaultInvitationTemplate(style, "en"), vars);
   const mr = fillInvitationTemplate(input.customTemplateMr?.trim() || defaultInvitationTemplate(style, "mr"), vars);
-  if (language === "mr") return mr;
-  if (language === "both") return compactLines([en, "", "────────", "", mr].join("\n").split("\n"));
-  return en;
+  return language === "mr" ? mr : en;
 }
 
 export function buildComposerUrl(
@@ -221,9 +219,7 @@ export async function renderInvitationCard(input: InvitationCardInput) {
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Could not draw the invitation card.");
 
-  const language = input.language ?? "en";
-  const showMr = language === "mr" || language === "both";
-  const showEn = language === "en" || language === "both";
+  const showMr = (input.language ?? "en") === "mr";
   const venue = [input.event.venue || input.defaultVenue, input.city].filter(Boolean).join(", ");
   const couple = [input.groomName, input.brideName].filter(Boolean).join("  &  ") || (showMr ? "शुभ विवाह" : "You're invited");
 
@@ -292,7 +288,7 @@ export async function renderInvitationCard(input: InvitationCardInput) {
   ctx.fillStyle = "#56504a";
   ctx.font = '500 28px Karla, sans-serif';
   const info = [
-    readableDate(input.event.date, showMr && !showEn ? "mr-IN" : "en-IN"),
+    readableDate(input.event.date, showMr ? "mr-IN" : "en-IN"),
     input.event.time || "",
     venue,
   ].filter(Boolean);
@@ -305,11 +301,9 @@ export async function renderInvitationCard(input: InvitationCardInput) {
   y += 36;
   ctx.fillStyle = "#4a1420";
   ctx.font = showMr ? '600 32px "Noto Serif Devanagari", serif' : '600 30px "Cormorant Garamond", Georgia, serif';
-  const greeting = showEn && showMr
-    ? `Dear ${input.guestName}  ·  प्रिय ${input.guestName}`
-    : showMr
-      ? `प्रिय ${input.guestName}`
-      : `Dear ${input.guestName}`;
+  const greeting = showMr
+    ? `प्रिय ${input.guestName}`
+    : `Dear ${input.guestName}`;
   for (const line of wrapText(ctx, greeting, width - 240)) {
     ctx.fillText(line, width / 2, y);
     y += 42;
@@ -317,11 +311,9 @@ export async function renderInvitationCard(input: InvitationCardInput) {
 
   ctx.fillStyle = "#6d1e2f";
   ctx.font = showMr ? '500 26px "Noto Serif Devanagari", serif' : '500 24px Karla, sans-serif';
-  const wish = showMr && !showEn
+  const wish = showMr
     ? "आपली उपस्थिती या आनंदाच्या दिवसाला पूर्णत्व देईल."
-    : showMr
-      ? "Your presence completes our joy.  आपली साथ आमचा आनंद."
-      : "Your presence will complete this joyous day.";
+    : "Your presence will complete this joyous day.";
   y += 28;
   for (const line of wrapText(ctx, wish, width - 260)) {
     ctx.fillText(line, width / 2, y);

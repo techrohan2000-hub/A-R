@@ -26,9 +26,8 @@ const channelDetails: Record<InvitationChannel, { label: string; icon: typeof Ma
 };
 
 const languageOptions: { value: InvitationLanguage; label: string; hint: string }[] = [
-  { value: "en", label: "English", hint: "Warm English wording" },
-  { value: "mr", label: "मराठी", hint: "मराठी निमंत्रण" },
-  { value: "both", label: "Both", hint: "English + मराठी" },
+  { value: "en", label: "English", hint: "Send in English" },
+  { value: "mr", label: "मराठी", hint: "मराठीत पाठवा" },
 ];
 
 const styleOptions: { value: InvitationStyle; label: string; en: string; mr: string }[] = [
@@ -51,7 +50,7 @@ export function Invitations() {
   const { workspace, addInvitation, saveReminderPreferences } = useWedding();
   const [eventId, setEventId] = useState("");
   const [channel, setChannel] = useState<InvitationChannel>("whatsapp");
-  const [language, setLanguage] = useState<InvitationLanguage>("both");
+  const [language, setLanguage] = useState<InvitationLanguage>("en");
   const [style, setStyle] = useState<InvitationStyle>("traditional");
   const [selected, setSelected] = useState<string[]>([]);
   const [customNote, setCustomNote] = useState("");
@@ -127,7 +126,9 @@ export function Invitations() {
         invitationMessageEn: enDraft,
         invitationMessageMr: mrDraft,
       });
-      setMessage("Default English and Marathi invitations saved for every guest.");
+      setMessage(language === "mr"
+        ? "Default Marathi invitation saved for every guest."
+        : "Default English invitation saved for every guest.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Could not save the default invitations.");
     } finally {
@@ -243,9 +244,9 @@ export function Invitations() {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Living invitation</p>
         <h2 className="mt-1 text-xl text-maroon-deep sm:text-2xl">A card people will actually want to open</h2>
         <p className="mt-2 max-w-2xl text-sm text-charcoal-soft">
-          Pick English, Marathi, or both. Then send a warm message — and optionally a beautiful card image — through WhatsApp or email.
+          Choose English or Marathi — one language at a time. Then send a warm message, and optionally a card image, through WhatsApp or email.
         </p>
-        <p className="mt-2 font-marathi text-sm text-maroon">इंग्रजी, मराठी किंवा दोन्ही. WhatsApp आणि ईमेलवर संदेशासोबत कार्डची प्रतिमाही पाठवता येते.</p>
+        <p className="mt-2 font-marathi text-sm text-maroon">इंग्रजी किंवा मराठी — एका वेळी एक भाषा. WhatsApp आणि ईमेलवर संदेशासोबत कार्डची प्रतिमाही पाठवता येते.</p>
       </section>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_1.05fr]">
@@ -257,7 +258,7 @@ export function Invitations() {
               </select>
             </Field>
             <ChoiceGroup label="Language / भाषा">
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {languageOptions.map((option) => (
                   <button
                     key={option.value}
@@ -300,7 +301,7 @@ export function Invitations() {
               </div>
             </ChoiceGroup>
             <Field label="Optional personal note">
-              <textarea rows={3} className="input resize-none" value={customNote} onChange={(e) => setCustomNote(e.target.value)} placeholder="We would be delighted to celebrate with you. / तुमच्यासोबत हा आनंद साजरा करायला आम्हाला खूप आनंद होईल." />
+              <textarea rows={3} className="input resize-none" value={customNote} onChange={(e) => setCustomNote(e.target.value)} placeholder={language === "mr" ? "तुमच्यासोबत हा आनंद साजरा करायला आम्हाला खूप आनंद होईल." : "We would be delighted to celebrate with you."} />
             </Field>
             <label className="flex items-start gap-3 rounded-xl border border-gold-soft/60 bg-cream-soft/70 p-3 text-sm">
               <input type="checkbox" checked={includeCard} onChange={(event) => setIncludeCard(event.target.checked)} className="mt-0.5 h-4 w-4 accent-maroon" />
@@ -363,25 +364,24 @@ export function Invitations() {
           <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,340px)_1fr]">
             <InvitationCardPreview input={previewInput} hashtag={workspace.wedding.couple.hashtag} />
             <div className="space-y-4">
-              {(language === "en" || language === "both") && (
-                <Field label="English invitation">
-                  <textarea
-                    aria-label="English invitation"
-                    rows={language === "both" ? 10 : 14}
-                    className="input resize-y font-sans text-sm"
-                    value={enDraft}
-                    onChange={(event) => setEnDraft(event.target.value)}
-                  />
-                </Field>
-              )}
-              {(language === "mr" || language === "both") && (
+              {language === "mr" ? (
                 <Field label="मराठी निमंत्रण">
                   <textarea
                     aria-label="Marathi invitation"
-                    rows={language === "both" ? 10 : 14}
+                    rows={14}
                     className="input resize-y font-marathi text-sm"
                     value={mrDraft}
                     onChange={(event) => setMrDraft(event.target.value)}
+                  />
+                </Field>
+              ) : (
+                <Field label="English invitation">
+                  <textarea
+                    aria-label="English invitation"
+                    rows={14}
+                    className="input resize-y font-sans text-sm"
+                    value={enDraft}
+                    onChange={(event) => setEnDraft(event.target.value)}
                   />
                 </Field>
               )}

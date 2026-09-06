@@ -1,4 +1,3 @@
-import type { InvitationLanguage } from "../../types/wedding";
 import { readableDate, type InvitationTemplateInput } from "../../services/invitations";
 
 interface InvitationCardPreviewProps {
@@ -7,11 +6,9 @@ interface InvitationCardPreviewProps {
 }
 
 export function InvitationCardPreview({ input, hashtag }: InvitationCardPreviewProps) {
-  const language: InvitationLanguage = input.language ?? "en";
-  const showMr = language === "mr" || language === "both";
-  const showEn = language === "en" || language === "both";
+  const showMr = (input.language ?? "en") === "mr";
   const venue = [input.event.venue || input.defaultVenue, input.city].filter(Boolean).join(", ");
-  const dateLabel = readableDate(input.event.date, showMr && !showEn ? "mr-IN" : "en-IN");
+  const dateLabel = readableDate(input.event.date, showMr ? "mr-IN" : "en-IN");
 
   return (
     <div className="relative mx-auto aspect-[3/4] w-full max-w-[340px] overflow-hidden rounded-[28px] border-[6px] border-maroon bg-gradient-to-b from-[#fffaf3] via-[#fbf6ef] to-[#f3e6d4] p-3 shadow-[0_18px_40px_-18px_rgba(74,20,32,0.45)]">
@@ -43,18 +40,12 @@ export function InvitationCardPreview({ input, hashtag }: InvitationCardPreviewP
 
         <div>
           <p className={`text-base text-maroon-deep ${showMr ? "font-marathi" : "font-display"}`}>
-            {showEn && showMr
-              ? `Dear ${input.guestName} · प्रिय ${input.guestName}`
-              : showMr
-                ? `प्रिय ${input.guestName}`
-                : `Dear ${input.guestName}`}
+            {showMr ? `प्रिय ${input.guestName}` : `Dear ${input.guestName}`}
           </p>
           <p className={`mt-2 text-xs leading-relaxed text-charcoal-soft ${showMr ? "font-marathi" : ""}`}>
-            {showMr && !showEn
+            {showMr
               ? "आपली उपस्थिती या आनंदाच्या दिवसाला पूर्णत्व देईल."
-              : showMr
-                ? "Your presence completes our joy. आपली साथ आमचा आनंद."
-                : "Your presence will complete this joyous day."}
+              : "Your presence will complete this joyous day."}
           </p>
           {hashtag ? <p className="mt-3 text-[11px] font-semibold tracking-wide text-gold">{hashtag.startsWith("#") ? hashtag : `#${hashtag}`}</p> : null}
         </div>
