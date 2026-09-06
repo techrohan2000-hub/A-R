@@ -60,6 +60,8 @@ describe("Invitations page", () => {
     render(<Invitations />);
     fireEvent.click(screen.getByRole("checkbox", { name: "Select Joshi Family" }));
     expect(screen.getAllByText(/Dear Joshi Family/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Date: Sunday, 20 September 2026/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Venue: Main Hall, Pune/).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: "Open WhatsApp" }));
     expect(window.open).toHaveBeenCalledWith(expect.stringContaining("wa.me/919876543210"), "_blank", "noopener,noreferrer");
     expect(mocks.addInvitation).toHaveBeenCalledWith(expect.objectContaining({ guestId: "g1", eventId: "e1", channel: "whatsapp", status: "opened" }));
@@ -67,11 +69,12 @@ describe("Invitations page", () => {
 
   it("sends an edited English default invitation to every selected guest", async () => {
     render(<Invitations />);
+    fireEvent.click(screen.getByRole("button", { name: "Edit invitation" }));
     fireEvent.change(screen.getByRole("textbox", { name: "English invitation" }), {
       target: { value: "Dear {guestName}, please come to our wedding." },
     });
     fireEvent.click(screen.getByRole("checkbox", { name: "Select Joshi Family" }));
-    expect(screen.getByText(/Dear Joshi Family, please come to our wedding/)).toBeTruthy();
+    expect(screen.getAllByText(/Dear Joshi Family, please come to our wedding/).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: "Open WhatsApp" }));
     expect(window.open).toHaveBeenCalledWith(expect.stringContaining(encodeURIComponent("Dear Joshi Family, please come to our wedding.")), "_blank", "noopener,noreferrer");
   });
@@ -80,6 +83,7 @@ describe("Invitations page", () => {
     workspace.wedding.uiLanguage = "mr";
     render(<Invitations />);
     expect(screen.queryByRole("button", { name: "Language: Both" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "निमंत्रण संपादित करा" }));
     expect(screen.getByRole("textbox", { name: "Marathi invitation" })).toBeTruthy();
     expect(screen.queryByRole("textbox", { name: "English invitation" })).toBeNull();
     fireEvent.click(screen.getByRole("checkbox", { name: "Select Joshi Family" }));

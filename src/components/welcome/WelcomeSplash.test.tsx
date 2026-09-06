@@ -16,6 +16,7 @@ describe("WelcomeSplash", () => {
     render(<WelcomeSplash groomName="Rohan" brideName="Aishwarya" />);
     expect(screen.getByRole("dialog", { name: /Rohan & Aishwarya/ })).toBeTruthy();
     expect(screen.getByText(/Soft lights, warm hearts/)).toBeTruthy();
+    expect(screen.getAllByText(/Two hearts, one mandap/).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: "Skip welcome" }));
     expect(screen.queryByRole("dialog")).toBeNull();
   });

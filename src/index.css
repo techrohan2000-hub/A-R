@@ -282,3 +282,84 @@ h1, h2, h3, h4 {
 .welcome-enter:hover {
   background: rgba(251, 246, 239, 0.2);
 }
+
+@keyframes wish-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes wish-drift {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  12% { opacity: 0.85; }
+  88% { opacity: 0.75; }
+  100% { transform: translate3d(18vw, -28px, 0); opacity: 0; }
+}
+
+.wish-ribbon {
+  pointer-events: none;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(217, 192, 147, 0.55);
+  background: linear-gradient(90deg, rgba(109, 30, 47, 0.06), rgba(241, 214, 192, 0.35), rgba(109, 30, 47, 0.06));
+}
+.wish-track {
+  display: flex;
+  width: max-content;
+  gap: 1.75rem;
+  padding: 0.45rem 0;
+  animation: wish-marquee 32s linear infinite;
+}
+.wish-chip {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-maroon);
+  white-space: nowrap;
+}
+.wish-chip::before {
+  content: "✦";
+  margin-right: 0.75rem;
+  color: var(--color-gold);
+}
+.wish-floaters {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+}
+.wish-bubble {
+  position: absolute;
+  border-radius: 9999px;
+  background: rgba(251, 246, 239, 0.55);
+  box-shadow: 0 8px 24px -16px rgba(74, 20, 32, 0.45);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-maroon-deep);
+  white-space: nowrap;
+  animation: wish-drift 16s ease-in-out infinite;
+}
+.wish-bubble-1 { top: 28%; left: 8%; animation-delay: 0s; }
+.wish-bubble-2 { top: 58%; left: 62%; animation-delay: 5s; }
+.wish-bubble-3 { top: 76%; left: 18%; animation-delay: 9s; }
+
+.welcome-flow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.welcome-flow-top { top: 1.4rem; }
+.welcome-flow-bottom { bottom: 1.4rem; }
+.welcome-flow-track {
+  display: flex;
+  width: max-content;
+  gap: 2rem;
+  animation: wish-marquee 26s linear infinite;
+  color: rgba(251, 246, 239, 0.72);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.welcome-flow-reverse { animation-direction: reverse; }

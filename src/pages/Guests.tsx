@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { BedDouble, Heart, Mail, MapPinned, Pencil, Plus, Search, Trash2, Users, Utensils } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useWedding } from "../hooks/useWedding";
-import type { FamilySide, GuestMealPreference, GuestSummary } from "../types/wedding";
+import type { FamilySide, GuestSummary } from "../types/wedding";
 import { Card } from "../components/common/Card";
 import { EmptyState } from "../components/common/EmptyState";
 import { Modal } from "../components/common/Modal";
@@ -47,12 +47,7 @@ export function Guests() {
     declined: t("guests.rsvpDeclined"),
   };
   const sideLabels: Record<FamilySide, string> = { bride: t("guests.brideSide"), groom: t("guests.groomSide"), both: t("guests.bothSides") };
-  const mealLabels: Record<GuestMealPreference, string> = {
-    veg: t("guests.mealVeg"),
-    "non-veg": t("guests.mealNonVeg"),
-    jain: t("guests.mealJain"),
-    other: t("guests.mealOther"),
-  };
+  const mealLabel = t("guests.mealVeg");
   const [editing, setEditing] = useState<GuestSummary | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -108,7 +103,7 @@ export function Guests() {
       ...emptyForm,
       ...guest,
       partySize: guestHeadcount(guest),
-      mealPreference: guest.mealPreference ?? "veg",
+      mealPreference: "veg",
     });
     setEditing(guest);
   };
@@ -127,6 +122,7 @@ export function Guests() {
       notes: form.notes?.trim() || undefined,
       phone: form.phone?.trim() || undefined,
       email: form.email?.trim() || undefined,
+      mealPreference: "veg",
     };
     if (editing) {
       await updateGuest(editing.id, payload);
@@ -266,7 +262,7 @@ export function Guests() {
                         </p>
                         <div className="mt-2 flex flex-wrap gap-1.5">
                           <span className="inline-flex items-center gap-1 rounded-full bg-cream-soft px-2 py-0.5 text-[11px] text-charcoal-soft">
-                            <Utensils size={11} /> {mealLabels[guest.mealPreference ?? "veg"]}
+                            <Utensils size={11} /> {mealLabel}
                           </span>
                           {guest.outstation && (
                             <span className="inline-flex items-center gap-1 rounded-full bg-peach/50 px-2 py-0.5 text-[11px] text-maroon">
@@ -362,15 +358,7 @@ export function Guests() {
                 </select>
               </Field>
               <Field label={t("guests.meal")}>
-                <select
-                  className="input"
-                  value={form.mealPreference ?? "veg"}
-                  onChange={(e) => setForm({ ...form, mealPreference: e.target.value as GuestMealPreference })}
-                >
-                  {Object.entries(mealLabels).map(([value, label]) => (
-                    <option key={value} value={value}>{label}</option>
-                  ))}
-                </select>
+                <div className="input flex items-center text-charcoal">{mealLabel}</div>
               </Field>
             </div>
             <Field label={t("guests.note")}>

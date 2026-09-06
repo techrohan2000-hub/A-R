@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { Sidebar } from "../components/navigation/Sidebar";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { TopBar } from "../components/navigation/TopBar";
+import { FloatingWishes } from "../components/welcome/FloatingWishes";
 import { useI18n } from "../hooks/useI18n";
 
 export function AppLayout() {
@@ -19,6 +20,7 @@ export function AppLayout() {
       <Sidebar />
       <div className="relative lg:pl-64">
         <TopBar />
+        <FloatingWishes />
         <main
           id="main-content"
           tabIndex={-1}

@@ -17,9 +17,6 @@ export function sumHeadcount(guests: Pick<GuestSummary, "partySize">[]) {
 
 export const mealLabels: Record<NonNullable<GuestSummary["mealPreference"]>, string> = {
   veg: "Veg",
-  "non-veg": "Non-veg",
-  jain: "Jain",
-  other: "Other",
 };
 
 export const sideAccent: Record<FamilySide, string> = {

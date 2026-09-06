@@ -60,6 +60,7 @@ export function Invitations() {
   const [mrDraft, setMrDraft] = useState("");
   const [savingDefaults, setSavingDefaults] = useState(false);
   const [appliedKey, setAppliedKey] = useState<string | null>(null);
+  const [editingDefault, setEditingDefault] = useState(false);
 
   const channelLabel = (value: InvitationChannel) => (
     value === "whatsapp" ? "WhatsApp" : value === "email" ? "Email" : "SMS"
@@ -156,10 +157,14 @@ export function Invitations() {
     setOpenedGuestId(guestId);
   };
 
-  const makeCardFile = async (guestName: string) => {
+  const makeCardFile = async (guestName: string, guestId?: string) => {
     const input = templateInput(guestName);
     if (!input || !event) throw new Error(t("invitations.chooseEvent"));
-    const blob = await invitationCardBlob({ ...input, hashtag: workspace.wedding.couple.hashtag });
+    const blob = await invitationCardBlob({
+      ...input,
+      hashtag: workspace.wedding.couple.hashtag,
+      message: guestId ? invitationText(guestId, guestName) : builtText(guestName),
+    });
     return new File([blob], invitationCardFileName(guestName, event.name), { type: "image/png" });
   };
 
@@ -172,7 +177,7 @@ export function Invitations() {
       const text = invitationText(guestId, guest.name);
       const subject = t("invitations.subject", { event: event.name });
       if (withImage) {
-        const file = await makeCardFile(guest.name);
+        const file = await makeCardFile(guest.name, guestId);
         if (canShareFiles()) {
           await shareInvitationCard({ title: subject, text, file });
           await recordOpened(guestId, text);
@@ -350,26 +355,54 @@ export function Invitations() {
             </div>
           </div>
           <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,340px)_1fr]">
-            <InvitationCardPreview input={previewInput} hashtag={workspace.wedding.couple.hashtag} />
+            <InvitationCardPreview
+              input={previewInput}
+              hashtag={workspace.wedding.couple.hashtag}
+              message={builtText(previewGuestName)}
+            />
             <div className="space-y-4">
-              <Field label={t("invitations.invitationLabel")}>
-                <textarea
-                  aria-label={language === "mr" ? "Marathi invitation" : "English invitation"}
-                  rows={14}
-                  className={`input resize-y text-sm ${isMr ? "font-marathi" : "font-sans"}`}
-                  value={language === "mr" ? mrDraft : enDraft}
-                  onChange={(event) => {
-                    const value = event.target.value;
-                    if (language === "mr") setMrDraft(value);
-                    else setEnDraft(value);
-                    setGuestDrafts({});
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-medium text-charcoal-soft">{t("invitations.invitationLabel")}</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEnDraft((current) => current || defaultInvitationTemplate(style, "en"));
+                    setMrDraft((current) => current || defaultInvitationTemplate(style, "mr"));
+                    setEditingDefault((open) => !open);
                   }}
-                />
-              </Field>
-              <div>
-                <p className="mb-1.5 text-xs font-medium text-charcoal-soft">{t("invitations.previewFor", { name: previewGuestName })}</p>
-                <pre className="max-h-52 overflow-auto whitespace-pre-wrap rounded-xl bg-cream-soft p-4 font-sans text-sm text-charcoal-soft">{builtText(previewGuestName)}</pre>
+                  className="flex items-center gap-1.5 rounded-full border border-maroon px-3 py-1.5 text-xs font-medium text-maroon hover:bg-peach/30"
+                >
+                  <Pencil size={13} /> {editingDefault ? t("invitations.doneEditing") : t("invitations.editDefault")}
+                </button>
               </div>
+              {editingDefault ? (
+                <>
+                  <p className={`text-xs leading-relaxed text-charcoal-soft ${isMr ? "font-marathi" : ""}`}>
+                    {t("invitations.formatHint")}
+                  </p>
+                  <Field label={t("invitations.invitationLabel")}>
+                    <textarea
+                      aria-label={language === "mr" ? "Marathi invitation" : "English invitation"}
+                      rows={14}
+                      className={`input resize-y text-sm ${isMr ? "font-marathi" : "font-sans"}`}
+                      value={language === "mr" ? mrDraft : enDraft}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        if (language === "mr") setMrDraft(value);
+                        else setEnDraft(value);
+                        setGuestDrafts({});
+                      }}
+                    />
+                  </Field>
+                </>
+              ) : (
+                <div>
+                  <p className="mb-1.5 text-xs font-medium text-charcoal-soft">{t("invitations.previewFor", { name: previewGuestName })}</p>
+                  <pre className={`whitespace-pre-wrap rounded-xl bg-cream-soft p-4 text-sm text-charcoal ${isMr ? "font-marathi" : "font-sans"}`}>
+                    {builtText(previewGuestName)}
+                  </pre>
+                </div>
+              )}
             </div>
           </div>
         </Card>
@@ -421,12 +454,12 @@ export function Invitations() {
                       )}
                     </div>
                   </div>
-                  {editing && (
+                  {editing ? (
                     <div>
                       <Field label={t("invitations.messageFor", { name: guest.name })}>
                         <textarea
                           aria-label={`Invitation for ${guest.name}`}
-                          rows={10}
+                          rows={12}
                           className={`input resize-y text-sm ${isMr ? "font-marathi" : "font-sans"}`}
                           value={guestDrafts[guest.id] ?? builtText(guest.name)}
                           onChange={(event) => setGuestDrafts((current) => ({ ...current, [guest.id]: event.target.value }))}
@@ -443,6 +476,10 @@ export function Invitations() {
                         {t("invitations.useDefault")}
                       </button>
                     </div>
+                  ) : (
+                    <pre className={`whitespace-pre-wrap rounded-xl bg-cream-soft p-3 text-sm text-charcoal ${isMr ? "font-marathi" : "font-sans"}`}>
+                      {invitationText(guest.id, guest.name)}
+                    </pre>
                   )}
                 </div>
               );

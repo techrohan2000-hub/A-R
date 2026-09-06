@@ -62,6 +62,20 @@ export function WelcomeSplash({ groomName, brideName, photoUrl }: WelcomeSplashP
       <Heart className="welcome-heart welcome-heart-3" size={18} fill="currentColor" aria-hidden="true" />
       <Sparkles className="welcome-sparkle welcome-sparkle-1" size={18} aria-hidden="true" />
       <Sparkles className="welcome-sparkle welcome-sparkle-2" size={14} aria-hidden="true" />
+      <div className="welcome-flow welcome-flow-top" aria-hidden="true">
+        <div className={`welcome-flow-track ${isMr ? "font-marathi" : ""}`}>
+          {[t("welcome.flow1"), t("welcome.flow2"), t("welcome.flow3"), t("welcome.flow5", { groom, bride }), t("welcome.flow1"), t("welcome.flow2"), t("welcome.flow3"), t("welcome.flow5", { groom, bride })].map((wish, index) => (
+            <span key={`${wish}-${index}`}>{wish}</span>
+          ))}
+        </div>
+      </div>
+      <div className="welcome-flow welcome-flow-bottom" aria-hidden="true">
+        <div className={`welcome-flow-track welcome-flow-reverse ${isMr ? "font-marathi" : ""}`}>
+          {[t("welcome.flow4"), t("welcome.flow2"), t("welcome.flow1"), t("welcome.flow5", { groom, bride }), t("welcome.flow4"), t("welcome.flow2"), t("welcome.flow1"), t("welcome.flow5", { groom, bride })].map((wish, index) => (
+            <span key={`${wish}-${index}`}>{wish}</span>
+          ))}
+        </div>
+      </div>
 
       <div className="welcome-card">
         {photoUrl ? (

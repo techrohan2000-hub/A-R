@@ -104,7 +104,7 @@ export interface BudgetSummary {
   paid: number;
 }
 
-export type GuestMealPreference = "veg" | "non-veg" | "jain" | "other";
+export type GuestMealPreference = "veg";
 
 export interface GuestSummary {
   id: string;

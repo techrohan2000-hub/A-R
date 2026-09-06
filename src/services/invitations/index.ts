@@ -169,6 +169,7 @@ export function buildComposerUrl(
 
 export interface InvitationCardInput extends InvitationTemplateInput {
   hashtag?: string;
+  message?: string;
 }
 
 function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number) {
@@ -186,6 +187,18 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
   }
   if (current) lines.push(current);
   return lines.length ? lines : [text];
+}
+
+function wrapMultiline(ctx: CanvasRenderingContext2D, text: string, maxWidth: number) {
+  const lines: string[] = [];
+  for (const paragraph of text.split("\n")) {
+    if (!paragraph.trim()) {
+      lines.push("");
+      continue;
+    }
+    lines.push(...wrapText(ctx, paragraph, maxWidth));
+  }
+  return lines;
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -211,17 +224,26 @@ async function ensureCardFonts() {
 
 export async function renderInvitationCard(input: InvitationCardInput) {
   await ensureCardFonts();
-  const canvas = document.createElement("canvas");
   const width = 1080;
-  const height = 1440;
+  const showMr = (input.language ?? "en") === "mr";
+  const couple = [input.groomName, input.brideName].filter(Boolean).join("  &  ") || (showMr ? "शुभ विवाह" : "You're invited");
+  const message = input.message ?? buildInvitationMessage(input);
+  const bodyFont = showMr ? '500 26px "Noto Serif Devanagari", serif' : "500 24px Karla, sans-serif";
+
+  const probe = document.createElement("canvas");
+  probe.width = width;
+  probe.height = 100;
+  const measure = probe.getContext("2d");
+  if (!measure) throw new Error("Could not draw the invitation card.");
+  measure.font = bodyFont;
+  const messageLines = wrapMultiline(measure, message, width - 260);
+  const height = Math.max(1440, 520 + messageLines.length * 36 + 220);
+
+  const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Could not draw the invitation card.");
-
-  const showMr = (input.language ?? "en") === "mr";
-  const venue = [input.event.venue || input.defaultVenue, input.city].filter(Boolean).join(", ");
-  const couple = [input.groomName, input.brideName].filter(Boolean).join("  &  ") || (showMr ? "शुभ विवाह" : "You're invited");
 
   ctx.fillStyle = "#fbf6ef";
   ctx.fillRect(0, 0, width, height);
@@ -258,7 +280,7 @@ export async function renderInvitationCard(input: InvitationCardInput) {
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#b08d57";
-  ctx.font = showMr ? '600 28px "Noto Serif Devanagari", serif' : '600 22px Karla, sans-serif';
+  ctx.font = showMr ? '600 28px "Noto Serif Devanagari", serif' : "600 22px Karla, sans-serif";
   ctx.fillText(showMr ? "॥ शुभ विवाह निमंत्रण ॥" : "YOU ARE INVITED", width / 2, 180);
 
   ctx.fillStyle = "#4a1420";
@@ -285,41 +307,16 @@ export async function renderInvitationCard(input: InvitationCardInput) {
     y += 48;
   }
 
-  ctx.fillStyle = "#56504a";
-  ctx.font = '500 28px Karla, sans-serif';
-  const info = [
-    readableDate(input.event.date, showMr ? "mr-IN" : "en-IN"),
-    input.event.time || "",
-    venue,
-  ].filter(Boolean);
-  y += 24;
-  for (const line of info) {
-    ctx.fillText(line, width / 2, y);
-    y += 42;
-  }
-
   y += 36;
   ctx.fillStyle = "#4a1420";
-  ctx.font = showMr ? '600 32px "Noto Serif Devanagari", serif' : '600 30px "Cormorant Garamond", Georgia, serif';
-  const greeting = showMr
-    ? `प्रिय ${input.guestName}`
-    : `Dear ${input.guestName}`;
-  for (const line of wrapText(ctx, greeting, width - 240)) {
-    ctx.fillText(line, width / 2, y);
-    y += 42;
+  ctx.font = bodyFont;
+  ctx.textAlign = "left";
+  for (const line of messageLines) {
+    if (line) ctx.fillText(line, 130, y);
+    y += 36;
   }
 
-  ctx.fillStyle = "#6d1e2f";
-  ctx.font = showMr ? '500 26px "Noto Serif Devanagari", serif' : '500 24px Karla, sans-serif';
-  const wish = showMr
-    ? "आपली उपस्थिती या आनंदाच्या दिवसाला पूर्णत्व देईल."
-    : "Your presence will complete this joyous day.";
-  y += 28;
-  for (const line of wrapText(ctx, wish, width - 260)) {
-    ctx.fillText(line, width / 2, y);
-    y += 38;
-  }
-
+  ctx.textAlign = "center";
   if (input.hashtag) {
     ctx.fillStyle = "#b08d57";
     ctx.font = "600 24px Karla, sans-serif";

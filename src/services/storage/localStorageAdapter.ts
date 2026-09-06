@@ -1,4 +1,4 @@
-import type { GuestMealPreference, GuestSummary, ReminderPreferences, Wedding, WeddingWorkspace } from "../../types/wedding";
+import type { GuestSummary, ReminderPreferences, Wedding, WeddingWorkspace } from "../../types/wedding";
 import type { StorageAdapter } from "./StorageAdapter";
 
 const STORAGE_KEY = "wedding-planner:workspace:v1";
@@ -51,12 +51,9 @@ export function pickPreferredWorkspace(
   return remoteUpdated >= localUpdated ? remote : local;
 }
 
-const mealPreferences: GuestMealPreference[] = ["veg", "non-veg", "jain", "other"];
-
 function normalizeGuest(value: unknown): GuestSummary {
   const guest = isRecord(value) ? value : {};
   const rsvp = guest.rsvp;
-  const meal = guest.mealPreference;
   return {
     id: typeof guest.id === "string" ? guest.id : "guest",
     name: typeof guest.name === "string" ? guest.name : "",
@@ -67,7 +64,7 @@ function normalizeGuest(value: unknown): GuestSummary {
     accommodationRequired: guest.accommodationRequired === true,
     ...(typeof guest.relation === "string" && guest.relation.trim() ? { relation: guest.relation } : {}),
     partySize: typeof guest.partySize === "number" && guest.partySize > 0 ? Math.round(guest.partySize) : 1,
-    mealPreference: typeof meal === "string" && mealPreferences.includes(meal as GuestMealPreference) ? meal as GuestMealPreference : "veg",
+    mealPreference: "veg",
     outstation: guest.outstation === true,
     ...(typeof guest.notes === "string" && guest.notes.trim() ? { notes: guest.notes } : {}),
   };
