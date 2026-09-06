@@ -17,6 +17,7 @@ import { Management } from "./pages/Management";
 import { navItems } from "./routes/navConfig";
 import { useWedding } from "./hooks/useWedding";
 import { readStoredLanguage, translate } from "./i18n";
+import { WelcomeSplash } from "./components/welcome/WelcomeSplash";
 
 const builtPaths = new Set([
   "/",
@@ -37,7 +38,7 @@ const builtPaths = new Set([
 // nested route. HashRouter keeps routing entirely client-side and needs no
 // extra GitHub Pages configuration.
 function AppRoutes() {
-  const { isLoading } = useWedding();
+  const { isLoading, workspace } = useWedding();
 
   if (isLoading) {
     return (
@@ -50,30 +51,39 @@ function AppRoutes() {
     );
   }
 
+  const couple = workspace?.wedding.couple;
+
   return (
-    <HashRouter>
-      <Routes>
-        <Route path="/setup" element={<WeddingSetup />} />
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/tasks" element={<Tasks />} />
-          <Route path="/guests" element={<Guests />} />
-          <Route path="/vendors" element={<Vendors />} />
-          <Route path="/shopping" element={<Shopping />} />
-          <Route path="/budget" element={<Budget />} />
-          <Route path="/events-rituals" element={<EventsRituals />} />
-          <Route path="/timeline" element={<Timeline />} />
-          <Route path="/invitations" element={<Invitations />} />
-          <Route path="/manage" element={<Management />} />
-          {navItems
-            .filter((item) => !builtPaths.has(item.path))
-            .map((item) => (
-              <Route key={item.path} path={item.path} element={<PlannerModule />} />
-            ))}
-        </Route>
-      </Routes>
-    </HashRouter>
+    <>
+      <WelcomeSplash
+        groomName={couple?.groomName}
+        brideName={couple?.brideName}
+        photoUrl={couple?.couplePhotoUrl}
+      />
+      <HashRouter>
+        <Routes>
+          <Route path="/setup" element={<WeddingSetup />} />
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/guests" element={<Guests />} />
+            <Route path="/vendors" element={<Vendors />} />
+            <Route path="/shopping" element={<Shopping />} />
+            <Route path="/budget" element={<Budget />} />
+            <Route path="/events-rituals" element={<EventsRituals />} />
+            <Route path="/timeline" element={<Timeline />} />
+            <Route path="/invitations" element={<Invitations />} />
+            <Route path="/manage" element={<Management />} />
+            {navItems
+              .filter((item) => !builtPaths.has(item.path))
+              .map((item) => (
+                <Route key={item.path} path={item.path} element={<PlannerModule />} />
+              ))}
+          </Route>
+        </Routes>
+      </HashRouter>
+    </>
   );
 }
 

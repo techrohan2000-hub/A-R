@@ -16,6 +16,7 @@ import type {
   WeddingWorkspace,
 } from "../types/wedding";
 import { storage } from "../services/storage";
+import { workspaceHasWeddingData } from "../services/storage/localStorageAdapter";
 
 interface WeddingContextValue {
   workspace: WeddingWorkspace | null;
@@ -153,7 +154,6 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
         const initial = saved ?? emptyWorkspace;
         workspaceRef.current = initial;
         setWorkspace(initial);
-        if (!saved) await storage.saveWedding(initial);
         if (cancelled) return;
 
         // If the adapter supports real-time sync (e.g. Firebase), subscribe so
@@ -161,9 +161,14 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
         if (storage.subscribeWedding) {
           unsubscribe = storage.subscribeWedding((incoming) => {
             if (cancelled) return;
-            const next = incoming ?? emptyWorkspace;
-            workspaceRef.current = next;
-            setWorkspace(next);
+            if (!incoming || !workspaceHasWeddingData(incoming)) {
+              if (workspaceHasWeddingData(workspaceRef.current)) return;
+              workspaceRef.current = emptyWorkspace;
+              setWorkspace(emptyWorkspace);
+              return;
+            }
+            workspaceRef.current = incoming;
+            setWorkspace(incoming);
           });
         }
       } catch (error) {

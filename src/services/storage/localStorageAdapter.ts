@@ -18,6 +18,39 @@ export function isLegacySampleWorkspace(value: unknown): boolean {
   return value.wedding.isSampleData === true;
 }
 
+export function workspaceHasWeddingData(workspace: WeddingWorkspace | null | undefined): boolean {
+  if (!workspace) return false;
+  const couple = workspace.wedding.couple;
+  return (
+    workspace.wedding.onboardingComplete ||
+    Boolean(couple.groomName.trim() || couple.brideName.trim() || couple.weddingDate || couple.weddingVenue) ||
+    workspace.guests.length > 0 ||
+    workspace.tasks.length > 0 ||
+    workspace.budget.length > 0 ||
+    workspace.vendors.length > 0 ||
+    workspace.shopping.length > 0 ||
+    workspace.milestones.length > 0 ||
+    workspace.plannerItems.length > 0 ||
+    workspace.invitations.length > 0 ||
+    workspace.wedding.events.length > 0
+  );
+}
+
+export function pickPreferredWorkspace(
+  local: WeddingWorkspace | null,
+  remote: WeddingWorkspace | null
+): WeddingWorkspace | null {
+  if (!remote) return local;
+  if (!local) return remote;
+  const localReal = workspaceHasWeddingData(local);
+  const remoteReal = workspaceHasWeddingData(remote);
+  if (localReal && !remoteReal) return local;
+  if (remoteReal && !localReal) return remote;
+  const localUpdated = Date.parse(local.wedding.updatedAt) || 0;
+  const remoteUpdated = Date.parse(remote.wedding.updatedAt) || 0;
+  return remoteUpdated >= localUpdated ? remote : local;
+}
+
 const mealPreferences: GuestMealPreference[] = ["veg", "non-veg", "jain", "other"];
 
 function normalizeGuest(value: unknown): GuestSummary {

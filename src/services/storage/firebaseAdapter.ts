@@ -2,7 +2,14 @@ import { doc, getDoc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import type { WeddingWorkspace } from "../../types/wedding";
 import type { StorageAdapter } from "./StorageAdapter";
-import { isLegacySampleWorkspace, isValidWorkspace, LocalStorageAdapter, normalizeWorkspace } from "./localStorageAdapter";
+import {
+  isLegacySampleWorkspace,
+  isValidWorkspace,
+  LocalStorageAdapter,
+  normalizeWorkspace,
+  pickPreferredWorkspace,
+  workspaceHasWeddingData,
+} from "./localStorageAdapter";
 
 // Everyone who opens the app shares this single document. There's no login
 // system yet, so this is intentionally a single shared workspace rather than
@@ -71,8 +78,15 @@ export class FirebaseAdapter implements StorageAdapter {
         }
         if (isValidWorkspace(data)) {
           const remote = normalizeWorkspace(data);
-          await this.local.saveWedding(remote);
-          return remote;
+          const preferred = pickPreferredWorkspace(cached, remote) ?? remote;
+          if (preferred === cached && cached && workspaceHasWeddingData(cached) && !workspaceHasWeddingData(remote)) {
+            void setDoc(this.docRef, cached).catch((error) => {
+              console.error("Could not restore local wedding data to Firebase:", error);
+            });
+          } else if (preferred !== cached) {
+            await this.local.saveWedding(preferred);
+          }
+          return preferred;
         }
       }
 
@@ -140,25 +154,7 @@ export class FirebaseAdapter implements StorageAdapter {
     const unsubscribe = onSnapshot(
       this.docRef,
       (snap) => {
-        if (!snap.exists()) {
-          void this.local.clearWedding();
-          onChange(null);
-          return;
-        }
-        const data = snap.data();
-        if (isLegacySampleWorkspace(data)) {
-          void this.local.clearWedding();
-          void deleteDoc(this.docRef!);
-          onChange(null);
-          return;
-        }
-        if (!isValidWorkspace(data)) {
-          onChange(null);
-          return;
-        }
-        const workspace = normalizeWorkspace(data);
-        void this.local.saveWedding(workspace);
-        onChange(workspace);
+        void this.applySnapshot(snap.exists() ? snap.data() : undefined, onChange);
       },
       (error) => {
         // Network hiccup / permissions issue — log so it's visible in devtools
@@ -167,5 +163,58 @@ export class FirebaseAdapter implements StorageAdapter {
       }
     );
     return unsubscribe;
+  }
+
+  private async applySnapshot(
+    data: unknown,
+    onChange: (workspace: WeddingWorkspace | null) => void
+  ) {
+    const cached = await this.local.loadWedding();
+
+    if (!data) {
+      // A missing cloud document must not wipe a real local plan. That happens
+      // after a deploy if the first Firebase read is empty or still in flight.
+      if (cached) {
+        if (this.docRef) {
+          void setDoc(this.docRef, cached).catch((error) => {
+            console.error("Could not restore local wedding data to Firebase:", error);
+          });
+        }
+        onChange(cached);
+      }
+      return;
+    }
+
+    if (isLegacySampleWorkspace(data)) {
+      if (cached) {
+        if (this.docRef) {
+          void setDoc(this.docRef, cached).catch((error) => {
+            console.error("Could not restore local wedding data to Firebase:", error);
+          });
+        }
+        onChange(cached);
+        return;
+      }
+      if (this.docRef) void deleteDoc(this.docRef);
+      onChange(null);
+      return;
+    }
+
+    if (!isValidWorkspace(data)) return;
+
+    const remote = normalizeWorkspace(data);
+    const preferred = pickPreferredWorkspace(cached, remote) ?? remote;
+    if (preferred === cached && cached && workspaceHasWeddingData(cached) && !workspaceHasWeddingData(remote)) {
+      if (this.docRef) {
+        void setDoc(this.docRef, cached).catch((error) => {
+          console.error("Could not restore local wedding data to Firebase:", error);
+        });
+      }
+      onChange(cached);
+      return;
+    }
+
+    if (preferred !== cached) await this.local.saveWedding(preferred);
+    onChange(preferred);
   }
 }

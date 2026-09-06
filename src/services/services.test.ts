@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { WeddingWorkspace } from "../types/wedding";
 import { buildComposerUrl, buildInvitationMessage, normalizePhone } from "./invitations";
 import { deriveNotifications, visibleNotifications } from "./notifications";
+import { pickPreferredWorkspace, workspaceHasWeddingData } from "./storage/localStorageAdapter";
 
 const workspace: WeddingWorkspace = {
   wedding: {
@@ -112,5 +113,29 @@ describe("reminder engine", () => {
       { id: notices[1].id, snoozedUntil: "2026-09-03T12:00:00.000Z" },
     ], new Date("2026-09-01T12:00:00"));
     expect(visible).toHaveLength(0);
+  });
+});
+
+describe("workspace sync preference", () => {
+  const empty: WeddingWorkspace = {
+    ...workspace,
+    wedding: {
+      ...workspace.wedding,
+      couple: { groomName: "", brideName: "", weddingDate: "", weddingTime: "", weddingVenue: "", city: "" },
+      events: [],
+      onboardingComplete: false,
+      updatedAt: "2026-09-06T12:00:00.000Z",
+    },
+    tasks: [],
+  };
+
+  it("keeps a real local plan when the cloud copy is empty", () => {
+    expect(workspaceHasWeddingData(workspace)).toBe(true);
+    expect(workspaceHasWeddingData(empty)).toBe(false);
+    expect(pickPreferredWorkspace(workspace, empty)).toBe(workspace);
+  });
+
+  it("does not let a missing cloud copy erase local data", () => {
+    expect(pickPreferredWorkspace(workspace, null)).toBe(workspace);
   });
 });
